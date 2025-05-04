@@ -31,6 +31,11 @@ const routes: IRoute[] = [
     exact: true,
   },
   {
+    path: '/example/superadmin/m-user',
+    icon: 'FormsIcon',
+    name: 'Manajemen User',
+  },
+  {
     path: '/example/forms',
     icon: 'FormsIcon',
     name: 'Forms',

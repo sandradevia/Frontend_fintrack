@@ -1,44 +1,61 @@
 import { useContext } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-
 import { Label, Input, Button, WindmillContext } from '@roketid/windmill-react-ui'
 
 function ForgotPassword() {
   const { mode } = useContext(WindmillContext)
-  const imgSource = mode === 'dark' ? '/assets/img/forgot-password-office-dark.jpeg' : '/assets/img/forgot-password-office.jpeg'
+  const imgSource =
+    mode === 'dark'
+      ? '/assets/img/login.jpg'
+      : '/assets/img/login.jpg'
 
   return (
-    <div className="flex items-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
-      <div className="flex-1 h-full max-w-4xl mx-auto overflow-hidden bg-white rounded-lg shadow-xl dark:bg-gray-800">
-        <div className="flex flex-col overflow-y-auto md:flex-row">
-          <div className="relative h-32 md:h-auto md:w-1/2">
-            <Image
-              aria-hidden="true"
-              className="object-cover w-full h-full"
-              src={imgSource}
-              alt="Office"
-              layout='fill'
-            />
-          </div>
-          <main className="flex items-center justify-center p-6 sm:p-12 md:w-1/2">
-            <div className="w-full">
-              <h1 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-200">
-                Forgot password
-              </h1>
+    <div
+      className="min-h-screen bg-cover bg-center flex items-center justify-center"
+      style={{
+        backgroundImage: `url(${imgSource})`
+      }}
+    >
+      {/* Overlay biar card lebih kontras */}
+      <div className="absolute inset-0 bg-black opacity-30 z-0" />
 
-              <Label>
-                <span>Email</span>
-                <Input className="mt-1" placeholder="Jane Doe" />
-              </Label>
+      {/* Card container */}
+      <div className="relative z-10 w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
+          Forgot Password
+        </h1>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
+          Enter your Active Email
+        </p>
 
-            <Link href="/example" passHref={true}>
-              <Button tag={"button"} block className="mt-4">
-                Recover password
-              </Button>
-            </Link>
-            </div>
-          </main>
+        <Label>
+          <span className="text-sm text-gray-700 dark:text-gray-200">Email</span>
+          <Input
+            className="mt-1"
+            placeholder="Enter Email"
+            type="email"
+          />
+        </Label>
+
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+          We will send you a link to reset your password via email
+        </p>
+
+        <Link href="/example/send-fp">
+          <a>
+            <Button block className="bg-indigo-600 hover:bg-indigo-700">
+              Send
+            </Button>
+          </a>
+        </Link>
+
+        <div className="mt-6 text-center">
+          <Link href="/example/login" passHref>
+            <span className="text-sm text-indigo-600 hover:underline cursor-pointer">
+              ← Back to Login
+            </span>
+          </Link>
         </div>
       </div>
     </div>

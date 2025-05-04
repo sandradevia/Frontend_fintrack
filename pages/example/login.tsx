@@ -1,87 +1,65 @@
 import React, { useContext } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
-
 import { Label, Input, Button, WindmillContext } from '@roketid/windmill-react-ui'
-import { GithubIcon, TwitterIcon } from 'icons'
 
 function LoginPage() {
   const { mode } = useContext(WindmillContext)
-  const imgSource = mode === 'dark' ? '/assets/img/login-office-dark.jpeg' : '/assets/img/login-office.jpeg'
+  const imgSource = mode === 'dark'
+    ? '/assets/img/login.jpg'
+    : '/assets/img/login.jpg'
 
   return (
-    <div className='flex items-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900'>
-      <div className='flex-1 h-full max-w-4xl mx-auto overflow-hidden bg-white rounded-lg shadow-xl dark:bg-gray-800'>
-        <div className='flex flex-col overflow-y-auto md:flex-row'>
-          <div className='relative h-32 md:h-auto md:w-1/2'>
-            <Image
-              aria-hidden='true'
-              className='hidden object-cover w-full h-full'
-              src={imgSource}
-              alt='Office'
-              layout='fill'
-            />
-          </div>
-          <main className='flex items-center justify-center p-6 sm:p-12 md:w-1/2'>
-            <div className='w-full'>
-              <h1 className='mb-4 text-xl font-semibold text-gray-700 dark:text-gray-200'>
-                Login
-              </h1>
-              <Label>
-                <span>Email</span>
-                <Input
-                  className='mt-1'
-                  type='email'
-                  placeholder='john@doe.com'
-                />
-              </Label>
+    <div
+      className="min-h-screen bg-cover bg-center flex items-center justify-center relative"
+      style={{
+        backgroundImage: `url(${imgSource})`
+      }}
+    >
+      {/* Optional overlay */}
+      <div className="absolute inset-0 bg-black opacity-30 z-0" />
 
-              <Label className='mt-4'>
-                <span>Password</span>
-                <Input
-                  className='mt-1'
-                  type='password'
-                  placeholder='***************'
-                />
-              </Label>
+      {/* Login card */}
+      <div className="relative z-10 w-full max-w-md bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 backdrop-blur-sm p-8 rounded-2xl shadow-2xl">
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2 text-center">Login</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-300 mb-6">Enter your Username and password to login!</p>
 
-              <Link href='/example' passHref={true}>
-                <Button className='mt-4' block>
-                  Log in
-                </Button>
-              </Link>
-
-              <hr className='my-8' />
-
-              <Button block layout='outline'>
-                <GithubIcon className='w-4 h-4 mr-2' aria-hidden='true' />
-                Github
-              </Button>
-              <Button className='mt-4' block layout='outline'>
-                <TwitterIcon className='w-4 h-4 mr-2' aria-hidden='true' />
-                Twitter
-              </Button>
-
-              <p className='mt-4'>
-                <Link href='/example/forgot-password'>
-                  <a className='text-sm font-medium text-purple-600 dark:text-purple-400 hover:underline'>
-                    Forgot your password?
-                  </a>
-                </Link>
-              </p>
-              <p className='mt-1'>
-                <Link href='/example/create-account'>
-                  <a className='text-sm font-medium text-purple-600 dark:text-purple-400 hover:underline'>
-                    Create account
-                  </a>
-                </Link>
-              </p>
-            </div>
-          </main>
+        {/* OR separator */}
+        <div className="flex items-center mb-6">
+          <div className="flex-grow h-px bg-gray-300" />
+          <span className="px-2 text-gray-400 text-sm">or</span>
+          <div className="flex-grow h-px bg-gray-300" />
         </div>
+
+        {/* Username */}
+        <Label className="mb-4 block">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Username</span>
+          <Input className="mt-1" placeholder="username" />
+        </Label>
+
+        {/* Password */}
+        <Label className="mb-2 block">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Password</span>
+          <Input className="mt-1" type="password" placeholder="Min. 8 characters" />
+        </Label>
+
+        {/* Remember Me and Forgot Password */}
+        <div className="flex justify-between items-center mb-6">
+          <Link href="/example/forgot-password">
+            <span className="text-sm text-indigo-600 hover:underline cursor-pointer">
+              Forgot password?
+            </span>
+          </Link>
+        </div>
+
+        {/* Login Button */}
+        <Link href="/example" passHref>
+          <Button block className="bg-indigo-600 hover:bg-indigo-700">
+            Login
+          </Button>
+        </Link>
       </div>
     </div>
-  );
+  )
 }
 
 export default LoginPage
