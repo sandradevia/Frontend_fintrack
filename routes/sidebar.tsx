@@ -36,6 +36,11 @@ const routes: IRoute[] = [
     name: 'Manajemen User',
   },
   {
+    path: '/example/superadmin/m-cabang',
+    icon: 'ModalsIcon',
+    name: 'Manajemen Cabang',
+  },
+  {
     path: '/example/forms',
     icon: 'FormsIcon',
     name: 'Forms',
