@@ -158,7 +158,7 @@ const TransactionTable: React.FC = () => {
       <div className="p-6">
         <h2 className="text-2xl font-bold mb-4">Manajemen Transaksi</h2>
         <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
-          <InfoCard title="Total clients" value="6389">
+          <InfoCard title="Transaksi Hari Ini" value="3">
             {/* @ts-ignore */}
             <RoundIcon
               icon={PeopleIcon}
@@ -168,7 +168,7 @@ const TransactionTable: React.FC = () => {
             />
           </InfoCard>
 
-          <InfoCard title="Account balance" value="$ 46,760.89">
+          <InfoCard title="Total Transaksi" value="10">
             {/* @ts-ignore */}
             <RoundIcon
               icon={MoneyIcon}
@@ -212,7 +212,14 @@ const TransactionTable: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {data.map((transaction, index) => (
-                  <TableRow key={transaction.transactionId}>
+                  <TableRow
+                    key={transaction.transactionId}
+                    className={
+                      transaction.category.toLowerCase() === "reservasi"
+                        ? "bg-green-100"
+                        : "bg-red-100"
+                    }
+                  >
                     <TableCell>
                       {(page - 1) * resultsPerPage + index + 1}
                     </TableCell>
