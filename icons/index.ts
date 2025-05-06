@@ -58,9 +58,9 @@ export {
   OutlineLogoutIcon,
 }
 
-interface IIcon{
-  icon: string
-  [key: string]: string | undefined
+interface IIcon {
+  icon: string;  // Nama ikon
+  [key: string]: string | undefined;  // Properti lainnya, seperti `className`, `style`, dll.
 }
 
 export type {
