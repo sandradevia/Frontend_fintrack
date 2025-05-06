@@ -27,8 +27,13 @@ const routes: IRoute[] = [
   {
     path: '/example', // the url
     icon: 'HomeIcon', // the component being exported from icons/index.js
-    name: 'Dashboard', // name that appear in Sidebar
+    name: 'Dashboard Super Admin', // name that appear in Sidebar
     exact: true,
+  },
+  {
+    path: '/example/superadmin/m-cabang',
+    icon: 'ButtonsIcon',
+    name: 'Rekaptulasi',
   },
   {
     path: '/example/superadmin/m-user',
@@ -37,10 +42,36 @@ const routes: IRoute[] = [
   },
   {
     path: '/example/superadmin/m-cabang',
-    icon: 'ModalsIcon',
+    icon: 'CardsIcon',
     name: 'Manajemen Cabang',
   },
   {
+    path: '/example/dashboardAdmin', 
+    icon: 'HomeIcon', 
+    name: 'Dashboard Admin', 
+    exact: true,
+  },
+  {
+    path: '/example/superadmin/m-cabang',
+    icon: 'TablesIcon',
+    name: 'Transaksi',
+  },
+  {
+    path: '/example/superadmin/m-cabang',
+    icon: 'ChartsIcon',
+    name: 'Perencanaan Anggaran',
+  },
+  {
+    path: '/example/superadmin/m-cabang',
+    icon: 'PagesIcon',
+    name: 'POS',
+  },
+  {
+    path: '/example/superadmin/m-cabang',
+    icon: 'ButtonsIcon',
+    name: 'Rekaptulasi',
+  },
+  /*{
     path: '/example/forms',
     icon: 'FormsIcon',
     name: 'Forms',
@@ -96,7 +127,7 @@ const routes: IRoute[] = [
         name: 'Blank',
       },
     ],
-  },
+  },*/
 ]
 
 export type {IRoute}
