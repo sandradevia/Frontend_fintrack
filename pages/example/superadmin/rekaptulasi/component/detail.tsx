@@ -28,7 +28,6 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, onClose, item }) => {
         </div>
 
         <div className="bg-white px-6 py-4 space-y-2 text-sm text-gray-800">
-          <p><strong>ID:</strong> {item.id}</p>
           <p><strong>Cabang:</strong> {item.branch}</p>
           <p><strong>Bulan:</strong> {item.month}</p>
           <p><strong>Tahun:</strong> {item.year}</p>
