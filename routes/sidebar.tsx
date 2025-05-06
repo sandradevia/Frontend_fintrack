@@ -41,6 +41,16 @@ const routes: IRoute[] = [
     name: 'Manajemen Cabang',
   },
   {
+    path: '/example/admin/transaksi/page',
+    icon: 'ModalsIcon',
+    name: 'Transaksi',
+  },
+  {
+    path: '/example/admin/rekaptulasi/page',
+    icon: 'ModalsIcon',
+    name: 'Rekaptulasi',
+  },
+  {
     path: '/example/forms',
     icon: 'FormsIcon',
     name: 'Forms',
