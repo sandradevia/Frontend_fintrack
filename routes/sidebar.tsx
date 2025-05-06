@@ -23,7 +23,7 @@ export function routeIsActive(pathname: String, route: IRoute): boolean {
 const routes: IRoute[] = [
   // Rute yang hanya bisa diakses oleh Admin dan Super Admin
   {
-    path: '/example',
+    path: '/example', 
     icon: 'HomeIcon',
     name: 'Dashboard',
     exact: true,
@@ -31,7 +31,7 @@ const routes: IRoute[] = [
   },
   {
     path: '/example/superadmin/rekaptulasi',
-    icon: 'ChartsIcon',
+    icon: 'ButtonsIcon',
     name: 'Rekaptulasi',
     roles: ['admin'], // Hanya admin yang bisa mengakses
   },
@@ -43,7 +43,7 @@ const routes: IRoute[] = [
   },
   {
     path: '/example/superadmin/m-cabang',
-    icon: 'ModalsIcon',
+    icon: 'CardsIcon',
     name: 'Manajemen Cabang',
     roles: ['admin', 'super_admin'], // Admin dan Super Admin bisa mengakses
   },
@@ -58,6 +58,32 @@ const routes: IRoute[] = [
   
   // Rute lainnya hanya untuk Super Admin
   {
+    path: '/example/dashboardAdmin', 
+    icon: 'HomeIcon', 
+    name: 'Dashboard Admin', 
+    exact: true,
+  },
+  {
+    path: '/example/superadmin/m-cabang',
+    icon: 'TablesIcon',
+    name: 'Transaksi',
+  },
+  {
+    path: '/example/superadmin/m-cabang',
+    icon: 'ChartsIcon',
+    name: 'Perencanaan Anggaran',
+  },
+  {
+    path: '/example/superadmin/m-cabang',
+    icon: 'PagesIcon',
+    name: 'POS',
+  },
+  {
+    path: '/example/superadmin/m-cabang',
+    icon: 'ButtonsIcon',
+    name: 'Rekaptulasi',
+  },
+  /*{
     path: '/example/forms',
     icon: 'FormsIcon',
     name: 'Forms',
@@ -108,8 +134,10 @@ const routes: IRoute[] = [
         roles: ['admin', 'super_admin'], // Bisa diakses oleh admin dan super admin
       },
     ],
-  },
-];
+<<<<<<< HEAD
+  },*/
+]
+
 
 // Fungsi untuk memfilter rute berdasarkan role pengguna
 export const filterRoutesByRole = (routes: IRoute[], role: string): IRoute[] => {
