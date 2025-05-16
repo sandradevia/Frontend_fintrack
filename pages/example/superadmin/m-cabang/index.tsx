@@ -105,7 +105,7 @@ const ManajemenCabang = () => {
           />
         </div>
 
-        <TableContainer>
+        <TableContainer className="max-w-[1400px] mx-auto overflow-x-auto mb-10">
           <Table>
             <TableHeader>
               <tr className="bg-indigo-100">

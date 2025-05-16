@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; 
 import {
   Table,
   TableHeader,
@@ -16,39 +16,61 @@ import {
   PlusIcon,
   PencilIcon as EditIcon,
   TrashIcon,
+  CalendarDaysIcon,
+  ClipboardDocumentListIcon,
 } from "@heroicons/react/24/solid";
-import transaksiData, { TransaksiData } from "utils/admin/transaksiData";
+
 import Layout from "example/containers/Layout";
 import InfoCard from "example/components/Cards/InfoCard";
 import { MoneyIcon, PeopleIcon } from "icons";
 import RoundIcon from "example/components/RoundIcon";
+import { LockClosedIcon } from "@heroicons/react/24/solid";
 
-const TransactionTable: React.FC = () => {
-  const [data, setData] = useState<TransaksiData[]>(transaksiData);
+import AddTransaksiModal from "../transaksi/tambah";
+import EditTransaksiModal from "../transaksi/edit";
+import DetailTransaksiModal from "../transaksi/detail";
+
+interface TransaksiData {
+  transactionId: string;
+  category: string;
+  amount: number;
+  transactionDate: string;
+  type: string;
+  description: string;
+  branchId?: string;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  isLocked?: boolean;
+}
+
+function ManajemenTransaksi() {
+  const [data, setData] = useState<TransaksiData[]>([
+    { transactionId: "1", category: "Gaji", amount: 5000, transactionDate: "2023-05-01", type: "Pemasukan", description: "Gaji bulan ini",  isLocked: false },
+    { transactionId: "2", category: "Reservasi", amount: 1500, transactionDate: "2023-05-02", type: "Pengeluaran", description: "Reservasi Lapangan Futsal",  isLocked: false },
+    { transactionId: "3", category: "PDAM", amount: 200, transactionDate: "2023-05-03", type: "Pengeluaran", description: "Tagihan PDAM",  isLocked: false },
+  ]);
   const [page, setPage] = useState<number>(1);
   const [searchKeyword, setSearchKeyword] = useState<string>("");
-  const [filteredTransactions, setFilteredTransactions] =
-    useState<TransaksiData[]>(transaksiData);
-  const [selectedTransaction, setSelectedTransaction] =
-    useState<TransaksiData | null>(null);
-  const [editingTransaction, setEditingTransaction] =
-    useState<TransaksiData | null>(null);
-  const [deletingTransaction, setDeletingTransaction] =
-    useState<TransaksiData | null>(null);
+  const [filteredTransactions, setFilteredTransactions] = useState<TransaksiData[]>(data);
+  const [selectedTransaction, setSelectedTransaction] = useState<TransaksiData | null>(null);
+  const [editingTransaction, setEditingTransaction] = useState<TransaksiData | null>(null);
+  const [deletingTransaction, setDeletingTransaction] = useState<TransaksiData | null>(null);
   const [addingTransaction, setAddingTransaction] = useState<boolean>(false);
   const [newTransaction, setNewTransaction] = useState<Partial<TransaksiData>>({
+    transactionId: "",
     category: "",
-    amount: "",
+    amount: 0,
     transactionDate: "",
-    description: "",
     type: "",
-    branchId: "",
+    description: "",
+    branchId: "2",
   });
 
   const resultsPerPage = 10;
 
   useEffect(() => {
-    const filtered = transaksiData.filter((transaction) =>
+    const filtered = data.filter((transaction) =>
       transaction.category.toLowerCase().includes(searchKeyword.toLowerCase())
     );
     setFilteredTransactions(filtered);
@@ -64,14 +86,12 @@ const TransactionTable: React.FC = () => {
 
   const saveEdit = () => {
     if (!editingTransaction) return;
-    const updatedList = transaksiData.map((transaction) =>
+    const updatedList = data.map((transaction) =>
       transaction.transactionId === editingTransaction.transactionId
         ? editingTransaction
         : transaction
     );
-    setData(
-      updatedList.slice((page - 1) * resultsPerPage, page * resultsPerPage)
-    );
+    setData(updatedList.slice((page - 1) * resultsPerPage, page * resultsPerPage));
     setEditingTransaction(null);
   };
 
@@ -90,9 +110,13 @@ const TransactionTable: React.FC = () => {
   const handleEditChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    if (!editingTransaction) return;
     const { name, value } = e.target;
-    setEditingTransaction({ ...editingTransaction, [name]: value });
+    if (editingTransaction) {
+      setEditingTransaction({
+        ...editingTransaction,
+        [name]: value,
+      });
+    }
   };
 
   const confirmDeleteTransaction = (transaction: TransaksiData) => {
@@ -105,7 +129,7 @@ const TransactionTable: React.FC = () => {
 
   const deleteTransaction = () => {
     if (!deletingTransaction) return;
-    const filtered = transaksiData.filter(
+    const filtered = data.filter(
       (transaction) =>
         transaction.transactionId !== deletingTransaction.transactionId
     );
@@ -116,18 +140,18 @@ const TransactionTable: React.FC = () => {
   const handleAddTransaction = () => {
     if (
       newTransaction.category &&
-      newTransaction.amount &&
+      newTransaction.amount !== undefined &&
       newTransaction.transactionDate &&
-      newTransaction.type &&
-      newTransaction.branchId
+      newTransaction.type
     ) {
       const newTransactionId = (
-        parseInt(transaksiData[transaksiData.length - 1].transactionId) + 1
+        parseInt(data[data.length - 1]?.transactionId || "0") + 1
       ).toString();
+  
       const newTransactionData: TransaksiData = {
         transactionId: newTransactionId,
-        branchId: newTransaction.branchId,
-        userId: "1", // Default userId
+        branchId: newTransaction.branchId, // fallback
+        userId: "1",
         type: newTransaction.type,
         category: newTransaction.category,
         amount: newTransaction.amount,
@@ -136,48 +160,77 @@ const TransactionTable: React.FC = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-
-      transaksiData.push(newTransactionData);
-      setData(
-        transaksiData.slice((page - 1) * resultsPerPage, page * resultsPerPage)
-      );
+  
+      const updatedData = [...data, newTransactionData];
+      setData(updatedData.slice((page - 1) * resultsPerPage, page * resultsPerPage));
       setAddingTransaction(false);
       setNewTransaction({
         category: "",
-        amount: "",
+        amount: 0,
         transactionDate: "",
         description: "",
         type: "",
-        branchId: "",
+        branchId: "2", //ini harusnya ikut auth tapi ga ngerti codingane
       });
     }
   };
+  
+  const handleLockTransaksi = (transactionId: string) => {
+    const updated = data.map((item) =>
+      item.transactionId === transactionId
+        ? { ...item, isLocked: true }
+        : item
+    );
+    setData(updated);
+    setFilteredTransactions(updated);
+  };
+  
+  
 
   return (
     <Layout>
       <div className="p-6">
         <h2 className="text-2xl font-bold mb-4">Manajemen Transaksi</h2>
-        <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
-          <InfoCard title="Transaksi Hari Ini" value="3">
-            {/* @ts-ignore */}
-            <RoundIcon
-              icon={PeopleIcon}
-              iconColorClass="text-orange-500 dark:text-orange-100"
-              bgColorClass="bg-orange-100 dark:bg-orange-500"
-              className="mr-4"
-            />
-          </InfoCard>
 
-          <InfoCard title="Total Transaksi" value="10">
-            {/* @ts-ignore */}
-            <RoundIcon
-              icon={MoneyIcon}
-              iconColorClass="text-green-500 dark:text-green-100"
-              bgColorClass="bg-green-100 dark:bg-green-500"
-              className="mr-4"
-            />
-          </InfoCard>
+        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-white shadow-md rounded-lg p-4 flex items-center ">
+          <CalendarDaysIcon className="w-8 h-8 text-blue-600 mr-4" />
+          <div>
+            <p className="text-sm text-gray-500">Transaksi Hari Ini</p>
+            <p className="text-xl font-semibold text-gray-800">3</p>
+          </div>
         </div>
+
+        <div className="bg-white shadow-md rounded-lg p-4 flex items-center">
+          <ClipboardDocumentListIcon className="w-8 h-8 text-indigo-600 mr-4" />
+          <div>
+            <p className="text-sm text-gray-500">Total Transaksi</p>
+            <p className="text-xl font-semibold text-gray-800">10</p>
+          </div>
+        </div>
+
+        <div className="bg-white shadow-md rounded-lg p-4 flex items-center">
+          <LockClosedIcon className="w-8 h-8 text-red-600 mr-4" />
+          <div>
+            <p className="text-sm text-gray-500">Transaksi Terkunci</p>
+            <p className="text-xl font-semibold text-gray-800">2</p>
+          </div>
+        </div>
+      </div>
+
+        {/* Keterangan Warna */}
+        <div className="flex items-center space-x-4 px-4 pt-4 mb-6"> 
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-green-100 border border-gray-400" />
+            <span className="text-sm text-gray-700">Pemasukan</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 bg-red-100 border border-gray-400" />
+            <span className="text-sm text-gray-700">Pengeluaran</span>
+          </div>
+        </div>
+
+        {/* Header Table */}
         <div className="flex justify-between items-center bg-indigo-900 text-white px-6 py-4 rounded-t-lg">
           <h3 className="text-lg font-semibold">List Transaksi</h3>
           <Button
@@ -189,369 +242,126 @@ const TransactionTable: React.FC = () => {
           </Button>
         </div>
 
+        {/* Table & Search */}
         <div className="bg-white shadow-md rounded-b-lg overflow-x-auto">
-          <div className="p-4">
-            <Input
-              placeholder="🔍 Search Kategori"
-              className="w-1/3 mb-4"
-              value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
-            />
-          </div>
-
-          <TableContainer>
-            <Table>
-              <TableHeader>
-                <tr className="bg-indigo-100">
-                  <TableCell>No</TableCell>
-                  <TableCell>Kategori</TableCell>
-                  <TableCell>Jumlah</TableCell>
-                  <TableCell>Tanggal</TableCell>
-                  <TableCell>Aksi</TableCell>
-                </tr>
-              </TableHeader>
-              <TableBody>
-                {data.map((transaction, index) => (
-                  <TableRow
-                    key={transaction.transactionId}
-                    className={
-                      transaction.category.toLowerCase() === "reservasi"
-                        ? "bg-green-100"
-                        : "bg-red-100"
-                    }
-                  >
-                    <TableCell>
-                      {(page - 1) * resultsPerPage + index + 1}
-                    </TableCell>
-                    <TableCell>{transaction.category}</TableCell>
-                    <TableCell>
-                      Rp {parseInt(transaction.amount).toLocaleString("id-ID")}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(transaction.transactionDate).toLocaleDateString(
-                        "id-ID"
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          size="small"
-                          className="bg-blue-700 text-white"
-                          onClick={() => viewTransactionDetails(transaction)}
-                        >
-                          <EyeIcon className="w-4 h-4 mr-1" /> Lihat
-                        </Button>
-                        <Button
-                          size="small"
-                          className="bg-yellow-400 text-black hover:bg-yellow-500"
-                          onClick={() => handleEditClick(transaction)}
-                        >
-                          <EditIcon className="w-4 h-4 mr-1" /> Edit
-                        </Button>
-                        <Button
-                          size="small"
-                          className="bg-red-600 text-white hover:bg-red-700"
-                          onClick={() => confirmDeleteTransaction(transaction)}
-                        >
-                          <TrashIcon className="w-4 h-4 mr-1" /> Hapus
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <TableFooter>
-              <Pagination
-                totalResults={filteredTransactions.length}
-                resultsPerPage={resultsPerPage}
-                onChange={setPage}
-                label="Table navigation"
-              />
-            </TableFooter>
-          </TableContainer>
+        <div className="p-4">
+          <Input
+            placeholder="🔍 Search Kategori"
+            className="w-1/3 mb-4"
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+          />
         </div>
 
-        {/* Pop-up Add Transaction */}
+        <TableContainer className="max-w-[1400px] mx-auto overflow-x-auto mb-10">
+          <Table className="w-full border border-gray-300">
+            <TableHeader>
+              <tr className="bg-indigo-100">
+                <TableCell>No</TableCell>
+                <TableCell>Kategori</TableCell>
+                <TableCell>Jumlah</TableCell>
+                <TableCell>Tanggal</TableCell>
+                <TableCell>Aksi</TableCell>
+                <TableCell>Keterangan</TableCell>
+              </tr>
+            </TableHeader>
+            <TableBody>
+              {data.map((transaction, index) => (
+                <TableRow
+                  key={transaction.transactionId}
+                  className={
+                    transaction.category.toLowerCase() === "reservasi"
+                      ? "bg-green-100"
+                      : "bg-red-100"
+                  }
+                >
+                  <TableCell className="border-t border-r">
+                    {(page - 1) * resultsPerPage + index + 1}
+                  </TableCell>
+                  <TableCell className="border-t border-r">
+                    {transaction.category}
+                  </TableCell>
+                  <TableCell className="border-t border-r ">
+                    Rp{Number(transaction.amount).toLocaleString("id-ID")}
+                  </TableCell>
+                  <TableCell className="border-t border-r ">
+                    {new Date(transaction.transactionDate).toLocaleDateString("id-ID")}
+                  </TableCell>
+                  <TableCell className="border-t border-r">
+                    {transaction.description}
+                  </TableCell>
+                  <TableCell className="border-t">
+                    <div className="flex space-x-2">
+                      <Button
+                        size="small"
+                        className="bg-blue-700 text-white"
+                        onClick={() => viewTransactionDetails(transaction)}
+                      >
+                        <EyeIcon className="w-4 h-4 mr-1" /> Lihat
+                      </Button>
+                      <Button
+                        size="small"
+                        className="bg-yellow-400 text-black hover:bg-yellow-500"
+                        onClick={() => setEditingTransaction(transaction)}
+                        disabled={transaction.isLocked}
+                      >
+                        <EditIcon className="w-4 h-4 mr-1" /> Edit
+                      </Button>
+                      <Button
+                        size="small"
+                        className="bg-gray-700 text-white hover:bg-gray-800"
+                        onClick={() => handleLockTransaksi(transaction.transactionId)}
+                        disabled={transaction.isLocked}
+                      >
+                        🔒 {transaction.isLocked ? "Terkunci" : "Kunci"}
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <TableFooter>
+             <Pagination
+               totalResults={filteredTransactions.length}
+               resultsPerPage={resultsPerPage}
+               onChange={setPage}
+               label="Navigasi halaman"
+             />
+           </TableFooter>
+        </TableContainer>
+        </div>
+
+        {/* Popups */}
         {addingTransaction && (
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
-            <div className="bg-white rounded-lg shadow-lg w-[500px]">
-              <div className="flex justify-between items-center bg-[#2B3674] text-white p-2 rounded-t-lg">
-                <h3 className="text-lg font-bold">Tambah Transaksi</h3>
-                <Button
-                  className="bg-transparent text-white hover:bg-transparent hover:text-white"
-                  onClick={() => setAddingTransaction(false)}
-                >
-                  <span className="text-xl">×</span>
-                </Button>
-              </div>
-              <div className="p-4 space-y-4">
-                <div>
-                  <label className="block font-medium">Tipe</label>
-                  <select
-                    className="w-full mt-1 border-gray-300 rounded-md"
-                    value={newTransaction.type || ""}
-                    onChange={(e) =>
-                      setNewTransaction({
-                        ...newTransaction,
-                        type: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="">-- Pilih Tipe --</option>
-                    <option value="Pemasukan">Pemasukan</option>
-                    <option value="Pengeluaran">Pengeluaran</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-medium">Kategori</label>
-                  <Input
-                    name="category"
-                    value={newTransaction.category || ""}
-                    onChange={(e) =>
-                      setNewTransaction({
-                        ...newTransaction,
-                        category: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium">Jumlah</label>
-                  <Input
-                    type="number"
-                    name="amount"
-                    value={newTransaction.amount || ""}
-                    onChange={(e) =>
-                      setNewTransaction({
-                        ...newTransaction,
-                        amount: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium">Tanggal</label>
-                  <Input
-                    type="date"
-                    name="transactionDate"
-                    value={newTransaction.transactionDate || ""}
-                    onChange={(e) =>
-                      setNewTransaction({
-                        ...newTransaction,
-                        transactionDate: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium">Deskripsi</label>
-                  <Input
-                    name="description"
-                    value={newTransaction.description || ""}
-                    onChange={(e) =>
-                      setNewTransaction({
-                        ...newTransaction,
-                        description: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end space-x-2 p-4 border-t">
-                <Button
-                  className="bg-red-700 text-white hover:bg-[#FF0404]"
-                  onClick={() => setAddingTransaction(false)}
-                >
-                  Batal
-                </Button>
-                <Button
-                  className="bg-[#2B3674] text-white hover:bg-blue-700"
-                  onClick={handleAddTransaction}
-                >
-                  Tambah
-                </Button>
-              </div>
-            </div>
-          </div>
+          <AddTransaksiModal
+            addingTransaction={addingTransaction}
+            newTransaction={newTransaction}
+            setNewTransaction={setNewTransaction}
+            setAddingTransaction={setAddingTransaction}
+            handleAddTransaction={handleAddTransaction}
+          />
         )}
 
-        {/* Pop-up Detail Transaction */}
+
         {selectedTransaction && (
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white rounded-lg shadow-lg w-[500px]">
-              <div className="flex justify-between items-center bg-[#2B3674] text-white p-1 rounded-t-lg">
-                <h3 className="text-xl font-semibold">Detail Transaksi</h3>
-                <Button
-                  className="bg-transparent text-white hover:bg-transparent hover:text-white"
-                  onClick={closeTransactionDetails}
-                >
-                  <span className="text-white text-xl">×</span>
-                </Button>
-              </div>
-              <div className="space-y-2 mt-4 p-3">
-                <div className="flex">
-                  <div className="w-1/3 font-medium">Kategori</div>
-                  <div className="w-1/12">:</div>
-                  <div className="font-bold">
-                    {selectedTransaction.category}
-                  </div>
-                </div>
-                <div className="flex">
-                  <div className="w-1/3 font-medium">Jumlah</div>
-                  <div className="w-1/12">:</div>
-                  <div className="font-bold">
-                    Rp{" "}
-                    {parseInt(selectedTransaction.amount).toLocaleString(
-                      "id-ID"
-                    )}
-                  </div>
-                </div>
-                <div className="flex">
-                  <div className="w-1/3 font-medium">Tanggal</div>
-                  <div className="w-1/12">:</div>
-                  <div className="font-bold">
-                    {new Date(
-                      selectedTransaction.transactionDate
-                    ).toLocaleDateString("id-ID")}
-                  </div>
-                </div>
-                <div className="flex">
-                  <div className="w-1/3 font-medium">Tipe</div>
-                  <div className="w-1/12">:</div>
-                  <div className="font-bold">{selectedTransaction.type}</div>
-                </div>
-                <div className="flex">
-                  <div className="w-1/3 font-medium">Deskripsi</div>
-                  <div className="w-1/12">:</div>
-                  <div className="font-bold">
-                    {selectedTransaction.description}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <DetailTransaksiModal
+            selectedTransaction={selectedTransaction}
+            closeTransactionDetails={closeTransactionDetails}
+          />
         )}
 
-        {/* Pop-up Edit Transaction */}
         {editingTransaction && (
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
-            <div className="bg-white rounded-lg shadow-lg w-[500px]">
-              <div className="flex justify-between items-center bg-[#2B3674] text-white p-2 rounded-t-lg">
-                <h3 className="text-lg font-bold">Edit Transaksi</h3>
-                <Button
-                  className="bg-transparent text-white hover:bg-transparent hover:text-white"
-                  onClick={cancelEdit}
-                >
-                  <span className="text-xl">×</span>
-                </Button>
-              </div>
-              <div className="p-4 space-y-4">
-                <div>
-                  <label className="block font-medium">Tipe</label>
-                  <select
-                    className="w-full mt-1 border-gray-300 rounded-md"
-                    name="type"
-                    value={editingTransaction.type}
-                    onChange={handleEditChange}
-                  >
-                    <option value="">-- Pilih Tipe --</option>
-                    <option value="Pemasukan">Pemasukan</option>
-                    <option value="Pengeluaran">Pengeluaran</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-medium">Kategori</label>
-                  <Input
-                    name="category"
-                    value={editingTransaction.category}
-                    onChange={handleEditChange}
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium">Jumlah</label>
-                  <Input
-                    type="number"
-                    name="amount"
-                    value={editingTransaction.amount}
-                    onChange={handleEditChange}
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium">Tanggal</label>
-                  <Input
-                    type="date"
-                    name="transactionDate"
-                    value={editingTransaction.transactionDate}
-                    onChange={handleEditChange}
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium">Deskripsi</label>
-                  <Input
-                    name="description"
-                    value={editingTransaction.description}
-                    onChange={handleEditChange}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end space-x-2 p-4 border-t">
-                <Button
-                  className="bg-red-700 text-white hover:bg-[#FF0404]"
-                  onClick={cancelEdit}
-                >
-                  Batal
-                </Button>
-                <Button
-                  className="bg-[#2B3674] text-white hover:bg-blue-700"
-                  onClick={saveEdit}
-                >
-                  Simpan
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Pop-up Delete Transaction */}
-        {deletingTransaction && (
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
-            <div className="bg-white rounded-lg shadow-lg w-[400px]">
-              <div className="flex justify-between items-center bg-[#2B3674] text-white p-2 rounded-t-lg">
-                <h3 className="text-lg font-bold">Hapus Transaksi</h3>
-                <Button
-                  className="bg-transparent text-white hover:bg-transparent hover:text-white"
-                  onClick={cancelDelete}
-                >
-                  <span className="text-xl">×</span>
-                </Button>
-              </div>
-              <div className="p-4">
-                <p>
-                  Apakah Anda yakin ingin menghapus transaksi{" "}
-                  {deletingTransaction.category}?
-                </p>
-              </div>
-              <div className="flex justify-end space-x-2 p-4 border-t">
-                <Button
-                  className="bg-gray-500 text-white hover:bg-gray-700"
-                  onClick={cancelDelete}
-                >
-                  Batal
-                </Button>
-                <Button
-                  className="bg-red-700 text-white hover:bg-red-800"
-                  onClick={deleteTransaction}
-                >
-                  Hapus
-                </Button>
-              </div>
-            </div>
-          </div>
+          <EditTransaksiModal
+            editingTransaction={editingTransaction}
+            handleEditChange={handleEditChange}
+            cancelEdit={cancelEdit}
+            saveEdit={saveEdit}
+          />
         )}
       </div>
     </Layout>
   );
 };
 
-export default TransactionTable;
+export default ManajemenTransaksi;

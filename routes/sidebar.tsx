@@ -48,14 +48,6 @@ const routes: IRoute[] = [
     roles: ["admin", "super_admin"], // Admin dan Super Admin bisa mengakses
   },
 
-  // Rute yang hanya bisa diakses oleh Super Admin
-  {
-    path: "/example/superadmin/laporan",
-    icon: "ChartsIcon",
-    name: "Laporan",
-    roles: ["super_admin"], // Hanya bisa diakses oleh super admin
-  },
-
   // Rute lainnya hanya untuk Super Admin
   {
     path: "/example/dashboardAdmin",
@@ -69,17 +61,17 @@ const routes: IRoute[] = [
     name: "Transaksi",
   },
   {
-    path: "/example/superadmin/m-cabang",
+    path: "/example/admin/perencanaan",
     icon: "ChartsIcon",
     name: "Perencanaan Anggaran",
   },
   {
-    path: "/example/superadmin/m-cabang",
+    path: "/example/admin/pos",
     icon: "PagesIcon",
     name: "POS",
   },
   {
-    path: "/example/superadmin/m-cabang",
+    path: "/example/admin/rekaptulasi",
     icon: "ButtonsIcon",
     name: "Rekaptulasi",
   },
