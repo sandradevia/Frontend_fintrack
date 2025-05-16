@@ -14,15 +14,17 @@ type POSRecord = {
   id: number;
   reservationId: string;
   totalPayment: number;
-  status: 'lunas' | 'belum lunas';
+  Tanggal: Date ;
   isLocked: boolean;
 };
 
 // Data dummy
 const initialPOSData: POSRecord[] = [
-  { id: 1, reservationId: 'RES-001', totalPayment: 250000, status: 'lunas', isLocked: false },
-  { id: 2, reservationId: 'RES-002', totalPayment: 180000, status: 'lunas', isLocked: false },
-  { id: 3, reservationId: 'RES-003', totalPayment: 300000, status: 'belum lunas', isLocked: true },
+  { id: 1, reservationId: 'RES-001', totalPayment: 250000, Tanggal: new Date('2025-03-01') , isLocked: false },
+  { id: 2, reservationId: 'RES-002', totalPayment: 180000, Tanggal: new Date('2025-03-01') , isLocked: false },
+  { id: 3, reservationId: 'RES-003', totalPayment: 300000, Tanggal: new Date('2025-03-01') , isLocked: true },
+  { id: 4, reservationId: 'RES-004', totalPayment: 150000, Tanggal: new Date('2025-03-01') , isLocked: false },
+  { id: 5, reservationId: 'RES-005', totalPayment: 360000, Tanggal: new Date('2025-03-01') , isLocked: true },
 ];
 
 function POS() {
@@ -30,8 +32,8 @@ function POS() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filtered, setFiltered] = useState<POSRecord[]>(initialPOSData);
   const [page, setPage] = useState(1);
-  const resultsPerPage = 10;
-
+  const [resultsPerPage, setResultsPerPage] = useState(10);
+  const totalResults = setFiltered.length;
   useEffect(() => {
     const f = records.filter(r =>
       r.reservationId.toLowerCase().includes(searchKeyword.toLowerCase())
@@ -41,14 +43,6 @@ function POS() {
 
   const paginated = filtered.slice((page - 1) * resultsPerPage, page * resultsPerPage);
   const totalIncome = records.reduce((acc, curr) => acc + curr.totalPayment, 0);
-
-  const viewTransactionDetails = (transaction: POSRecord) => {
-    console.log('Lihat transaksi:', transaction);
-  };
-
-  const setEditingTransaction = (transaction: POSRecord) => {
-    console.log('Edit transaksi:', transaction);
-  };
 
   return (
     <Layout>
@@ -84,7 +78,7 @@ function POS() {
                 <TableCell>No</TableCell>
                 <TableCell>Reservasi ID</TableCell>
                 <TableCell>Total Pembayaran</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell>Tanggal</TableCell>
               </tr>
             </TableHeader>
             <TableBody>
@@ -93,35 +87,40 @@ function POS() {
                   <TableCell>{(page - 1) * resultsPerPage + index + 1}</TableCell>
                   <TableCell>{item.reservationId}</TableCell>
                   <TableCell>Rp {item.totalPayment.toLocaleString('id-ID')}</TableCell>
-                  <TableCell className="border-t">
-                    <div className="flex space-x-2">
-                      {item.status === 'lunas' ? (
-                        <Button
-                          size="small"
-                          className="bg-[#40FF2D] text-black w-40"
-                        > Lunas
-                        </Button>
-                      ) : (
-                        <Button
-                          size="small"
-                          className="bg-[#FF0404] text-black w-40"
-                        > Uang Muka
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
+                  <TableCell className="border-t border-r ">
+                                      {new Date(item.Tanggal).toLocaleDateString("id-ID")}
+                                    </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
           <TableFooter>
-            <Pagination
-              totalResults={filtered.length}
-              resultsPerPage={resultsPerPage}
-              onChange={setPage}
-              label="Navigasi halaman"
-            />
-          </TableFooter>
+                      <div className="flex flex-col md:flex-row items-center justify-between p-4">
+                        <div className="flex items-center">
+                          <span className="text-sm text-gray-500 mr-2">Show</span>
+                          <select
+                            className="form-select w-20 text-sm"
+                            value={resultsPerPage}
+                            onChange={(e) => {
+                              setResultsPerPage(Number(e.target.value));
+                              setPage(1);
+                            }}
+                          >
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                          </select>
+                          <span className="text-sm text-gray-500 ml-2">entries</span>
+                        </div>
+                        <Pagination
+                          totalResults={totalResults}
+                          resultsPerPage={resultsPerPage}
+                          onChange={setPage}
+                          label="Table navigation"
+                        />
+                      </div>
+                    </TableFooter>
         </TableContainer>
       </div>
     </Layout>
