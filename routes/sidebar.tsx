@@ -5,7 +5,7 @@ interface IRoute {
   routes?: IRoute[];
   checkActive?(pathname: String, route: IRoute): boolean;
   exact?: boolean;
-  roles?: string[];  // Menambahkan roles untuk membatasi akses
+  roles?: string[]; // Menambahkan roles untuk membatasi akses
 }
 
 export function routeIsActive(pathname: String, route: IRoute): boolean {
@@ -23,65 +23,65 @@ export function routeIsActive(pathname: String, route: IRoute): boolean {
 const routes: IRoute[] = [
   // Rute yang hanya bisa diakses oleh Admin dan Super Admin
   {
-    path: '/example', 
-    icon: 'HomeIcon',
-    name: 'Dashboard',
+    path: "/example",
+    icon: "HomeIcon",
+    name: "Dashboard",
     exact: true,
-    roles: ['super_admin'], // Admin dan Super Admin bisa mengakses
+    roles: ["super_admin"], // Admin dan Super Admin bisa mengakses
   },
   {
-    path: '/example/superadmin/rekaptulasi',
-    icon: 'ButtonsIcon',
-    name: 'Rekaptulasi',
-    roles: ['admin'], // Hanya admin yang bisa mengakses
+    path: "/example/superadmin/rekaptulasi",
+    icon: "ButtonsIcon",
+    name: "Rekaptulasi",
+    roles: ["admin"], // Hanya admin yang bisa mengakses
   },
   {
-    path: '/example/superadmin/m-user',
-    icon: 'FormsIcon',
-    name: 'Manajemen User',
-    roles: ['admin', 'super_admin'], // Admin dan Super Admin bisa mengakses
+    path: "/example/superadmin/m-user",
+    icon: "FormsIcon",
+    name: "Manajemen User",
+    roles: ["admin", "super_admin"], // Admin dan Super Admin bisa mengakses
   },
   {
-    path: '/example/superadmin/m-cabang',
-    icon: 'CardsIcon',
-    name: 'Manajemen Cabang',
-    roles: ['admin', 'super_admin'], // Admin dan Super Admin bisa mengakses
+    path: "/example/superadmin/m-cabang",
+    icon: "CardsIcon",
+    name: "Manajemen Cabang",
+    roles: ["admin", "super_admin"], // Admin dan Super Admin bisa mengakses
   },
 
   // Rute yang hanya bisa diakses oleh Super Admin
   {
-    path: '/example/superadmin/laporan',
-    icon: 'ChartsIcon',
-    name: 'Laporan',
-    roles: ['super_admin'], // Hanya bisa diakses oleh super admin
+    path: "/example/superadmin/laporan",
+    icon: "ChartsIcon",
+    name: "Laporan",
+    roles: ["super_admin"], // Hanya bisa diakses oleh super admin
   },
-  
+
   // Rute lainnya hanya untuk Super Admin
   {
-    path: '/example/dashboardAdmin', 
-    icon: 'HomeIcon', 
-    name: 'Dashboard Admin', 
+    path: "/example/dashboardAdmin",
+    icon: "HomeIcon",
+    name: "Dashboard Admin",
     exact: true,
   },
   {
-    path: '/example/superadmin/m-cabang',
-    icon: 'TablesIcon',
-    name: 'Transaksi',
+    path: "/example/admin/transaksi/page",
+    icon: "TablesIcon",
+    name: "Transaksi",
   },
   {
-    path: '/example/superadmin/m-cabang',
-    icon: 'ChartsIcon',
-    name: 'Perencanaan Anggaran',
+    path: "/example/superadmin/m-cabang",
+    icon: "ChartsIcon",
+    name: "Perencanaan Anggaran",
   },
   {
-    path: '/example/superadmin/m-cabang',
-    icon: 'PagesIcon',
-    name: 'POS',
+    path: "/example/superadmin/m-cabang",
+    icon: "PagesIcon",
+    name: "POS",
   },
   {
-    path: '/example/superadmin/m-cabang',
-    icon: 'ButtonsIcon',
-    name: 'Rekaptulasi',
+    path: "/example/superadmin/m-cabang",
+    icon: "ButtonsIcon",
+    name: "Rekaptulasi",
   },
   /*{
     path: '/example/forms',
@@ -136,19 +136,21 @@ const routes: IRoute[] = [
     ],
 <<<<<<< HEAD
   },*/
-]
-
+];
 
 // Fungsi untuk memfilter rute berdasarkan role pengguna
-export const filterRoutesByRole = (routes: IRoute[], role: string): IRoute[] => {
+export const filterRoutesByRole = (
+  routes: IRoute[],
+  role: string
+): IRoute[] => {
   return routes
-    .filter(route => {
+    .filter((route) => {
       if (route.roles) {
         return route.roles.includes(role);
       }
       return true;
     })
-    .map(route => {
+    .map((route) => {
       // Rekursif filter submenu jika ada
       if (route.routes) {
         const filteredSubRoutes = filterRoutesByRole(route.routes, role);
@@ -157,7 +159,6 @@ export const filterRoutesByRole = (routes: IRoute[], role: string): IRoute[] => 
       return route;
     });
 };
-
 
 export type { IRoute };
 export default routes;

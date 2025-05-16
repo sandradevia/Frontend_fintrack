@@ -41,7 +41,7 @@ function LoginPage() {
 
       // Redirect sesuai role (opsional)
       if (user.role === "super_admin") {
-        router.push("/example/dashboard");
+        router.push("/example");
       } else {
         router.push("/example");
       }
