@@ -67,7 +67,8 @@ function ManajemenTransaksi() {
     branchId: "2",
   });
 
-  const resultsPerPage = 10;
+    const [resultsPerPage, setResultsPerPage] = useState(10);
+    const totalResults = setFilteredTransactions.length;
 
   useEffect(() => {
     const filtered = data.filter((transaction) =>
@@ -322,13 +323,30 @@ function ManajemenTransaksi() {
             </TableBody>
           </Table>
           <TableFooter>
-             <Pagination
-               totalResults={filteredTransactions.length}
-               resultsPerPage={resultsPerPage}
-               onChange={setPage}
-               label="Navigasi halaman"
-             />
-           </TableFooter>
+              <div className="flex flex-col md:flex-row items-center justify-between p-4">
+                  <div className="flex items-center">
+                      <span className="text-sm text-gray-500 mr-2">Show</span>
+                        <select
+                          className="form-select w-20 text-sm" value={resultsPerPage} onChange={(e) => {
+                              setResultsPerPage(Number(e.target.value));
+                              setPage(1);
+                               }}
+                        >
+                          <option value="5">5</option>
+                          <option value="10">10</option>
+                          <option value="25">25</option>
+                          <option value="50">50</option>
+                          </select>
+                              <span className="text-sm text-gray-500 ml-2">entries</span>
+                              </div>
+                                 <Pagination
+                                    totalResults={totalResults}
+                                    resultsPerPage={resultsPerPage}
+                                    onChange={setPage}
+                                    label="Table navigation"
+                                  />
+                              </div>
+            </TableFooter>
         </TableContainer>
         </div>
 
