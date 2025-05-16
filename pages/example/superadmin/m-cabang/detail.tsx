@@ -34,10 +34,6 @@ const DetailBranchModal: React.FC<DetailBranchModalProps> = ({
 
         <div className="p-4 space-y-4">
           <div>
-            <label className="block font-medium">ID</label>
-            <p className="mt-1 text-gray-700">{branch.id}</p>
-          </div>
-          <div>
             <label className="block font-medium">Nama Cabang</label>
             <p className="mt-1 text-gray-700">{branch.name}</p>
           </div>
