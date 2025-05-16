@@ -23,7 +23,7 @@ export function routeIsActive(pathname: String, route: IRoute): boolean {
 const routes: IRoute[] = [
   // Rute yang hanya bisa diakses oleh Admin dan Super Admin
   {
-    path: "/example",
+    path: "/example/superadmin/dashboard",
     icon: "HomeIcon",
     name: "Dashboard",
     exact: true,
