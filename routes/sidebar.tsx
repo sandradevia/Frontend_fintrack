@@ -50,7 +50,7 @@ const routes: IRoute[] = [
 
   // Rute lainnya hanya untuk Super Admin
   {
-    path: "/example/dashboardAdmin",
+    path: "/example/admin/dashboard",
     icon: "HomeIcon",
     name: "Dashboard Admin",
     exact: true,
