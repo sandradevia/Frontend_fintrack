@@ -58,7 +58,7 @@ const members = ['John Doe', 'Jane Smith', 'Robert Johnson', 'Emily Davis', 'Mic
 
 // Generate financial data
 const generateFinancialData = (): FinancialRecord[] => {
-  const years = [2022, 2023];
+  const years = [2024, 2025];
   const data: FinancialRecord[] = [];
   
   let id = 1;
@@ -123,7 +123,7 @@ const RekaptulasiPage = () => {
   const [data, setData] = useState<FinancialRecord[]>(generateFinancialData());
   const [filteredData, setFilteredData] = useState<FinancialRecord[]>(data);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [selectedYear, setSelectedYear] = useState('2023');
+  const [selectedYear, setSelectedYear] = useState('2025');
   const [selectedBranch, setSelectedBranch] = useState('Semua Cabang');
   const [selectedMonth, setSelectedMonth] = useState('');
 
