@@ -5,7 +5,7 @@ interface IRoute {
   routes?: IRoute[];
   checkActive?(pathname: String, route: IRoute): boolean;
   exact?: boolean;
-  roles?: string[]; // Menambahkan roles untuk membatasi akses
+  roles?: string[];
 }
 
 export function routeIsActive(pathname: String, route: IRoute): boolean {
@@ -21,59 +21,64 @@ export function routeIsActive(pathname: String, route: IRoute): boolean {
 }
 
 const routes: IRoute[] = [
-  // Rute yang hanya bisa diakses oleh Admin dan Super Admin
+  // Rute yang hanya bisa diakses oleh Super Admin
   {
-    path: "/example/superadmin/dashboard",
+    path: "/superadmin/dashboard",
     icon: "HomeIcon",
     name: "Dashboard",
     exact: true,
-    roles: ["super_admin"], // Admin dan Super Admin bisa mengakses
+    roles: ["super_admin"],
   },
   {
-    path: "/example/superadmin/rekaptulasi",
+    path: "/superadmin/rekaptulasi",
     icon: "ButtonsIcon",
     name: "Rekaptulasi",
-    roles: ["admin"], // Hanya admin yang bisa mengakses
+    roles: ["super_admin"],
   },
   {
-    path: "/example/superadmin/m-user",
+    path: "/superadmin/m-user",
     icon: "FormsIcon",
     name: "Manajemen User",
-    roles: ["admin", "super_admin"], // Admin dan Super Admin bisa mengakses
+    roles: ["super_admin"],
   },
   {
-    path: "/example/superadmin/m-cabang",
+    path: "/superadmin/m-cabang",
     icon: "CardsIcon",
     name: "Manajemen Cabang",
-    roles: ["admin", "super_admin"], // Admin dan Super Admin bisa mengakses
+    roles: ["super_admin"],
   },
 
-  // Rute lainnya hanya untuk Super Admin
+  // Rute yang hanya bisa diakses oleh admin
   {
-    path: "/example/admin/dashboard",
+    path: "/admin/dashboard",
     icon: "HomeIcon",
     name: "Dashboard Admin",
     exact: true,
+    roles: ["admin"],
   },
   {
-    path: "/example/admin/transaksi/page",
+    path: "/admin/transaksi",
     icon: "TablesIcon",
     name: "Transaksi",
+    roles: ["admin"],
   },
   {
-    path: "/example/admin/perencanaan",
+    path: "/admin/perencanaan",
     icon: "ChartsIcon",
     name: "Perencanaan Anggaran",
+    roles: ["admin"],
   },
   {
-    path: "/example/admin/pos",
+    path: "/admin/pos",
     icon: "PagesIcon",
     name: "POS",
+    roles: ["admin"],
   },
   {
-    path: "/example/admin/rekaptulasi",
+    path: "/admin/rekaptulasi",
     icon: "ButtonsIcon",
     name: "Rekaptulasi",
+    roles: ["admin"],
   },
 ];
 
@@ -90,7 +95,6 @@ export const filterRoutesByRole = (
       return true;
     })
     .map((route) => {
-      // Rekursif filter submenu jika ada
       if (route.routes) {
         const filteredSubRoutes = filterRoutesByRole(route.routes, role);
         return { ...route, routes: filteredSubRoutes };

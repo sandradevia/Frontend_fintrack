@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 
-const allowedPaths = ["/example/login"]; // ← halaman yang boleh diakses tanpa login
+const allowedPaths = ["/login"]; // ← halaman yang boleh diakses tanpa login
 
 const withAuth = (WrappedComponent: any) => {
   const AuthenticatedComponent = (props: any) => {
@@ -12,7 +12,7 @@ const withAuth = (WrappedComponent: any) => {
       const currentPath = router.pathname;
 
       if (!token && !allowedPaths.includes(currentPath)) {
-        router.replace("/example/login"); // redirect jika tidak login dan bukan halaman login
+        router.replace("/login"); // redirect jika tidak login dan bukan halaman login
       }
     }, []);
 

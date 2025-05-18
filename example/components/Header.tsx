@@ -64,7 +64,7 @@ function Header() {
   const handleLogout = async () => {
     try {
       await logout();
-      window.location.href = "/example/login";
+      window.location.href = "/login";
     } catch (error) {
       console.error("logout gagal", error);
     }

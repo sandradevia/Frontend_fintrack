@@ -2,10 +2,10 @@
 import Layout from "example/containers/Layout";
 import PageTitle from "example/components/Typography/PageTitle";
 
-import TrendLineChart from "../../../../example/components/Admin/dashboard/trendLineChart";
-import TrendBarChart from "../../../../example/components/Admin/dashboard/trendBarChart";
-import TransaksiTerbaruTable from "../../../../example/components/Admin/dashboard/transaksiTerbaruTable";
-import SummaryCards from "../../../../example/components/Admin/dashboard/summaryCards";
+import TrendLineChart from "../../../example/components/Admin/dashboard/trendLineChart";
+import TrendBarChart from "../../../example/components/Admin/dashboard/trendBarChart";
+import TransaksiTerbaruTable from "../../../example/components/Admin/dashboard/transaksiTerbaruTable";
+import SummaryCards from "../../../example/components/Admin/dashboard/summaryCards";
 
 export default function Dashboard() {
   return (
