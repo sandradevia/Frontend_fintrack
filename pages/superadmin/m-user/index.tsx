@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableHeader,
@@ -10,20 +10,20 @@ import {
   Button,
   Pagination,
   Input,
-} from '@roketid/windmill-react-ui';
+} from "@roketid/windmill-react-ui";
 import {
   EyeIcon,
   PlusIcon,
   PencilIcon as EditIcon,
   TrashIcon,
-} from '@heroicons/react/24/solid';
-import Layout from 'example/containers/Layout';
-import PageTitle from 'example/components/Typography/PageTitle';
+} from "@heroicons/react/24/solid";
+import Layout from "example/containers/Layout";
+import PageTitle from "example/components/Typography/PageTitle";
 
-import AddUserModal from '../m-user/tambah';
-import EditUserModal from '../m-user/edit';
-import DetailUserModal from '../m-user/detail';
-import DeleteUserModal from '../m-user/delete';
+import AddUserModal from "./tambah";
+import EditUserModal from "./edit";
+import DetailUserModal from "./detail";
+import DeleteUserModal from "./delete";
 
 type User = {
   id: number;
@@ -33,23 +33,23 @@ type User = {
 };
 
 const branches = [
-  { id: 1, name: 'Klojen', password: 'cabang1klojen' },
-  { id: 2, name: 'Lowokwaru', password: 'cabang2lowokwaru' },
-  { id: 3, name: 'Junrejo', password: 'cabang3junrejo' },
-  { id: 4, name: 'Blimbing',password: 'cabang4blimbing' },
+  { id: 1, name: "Klojen", password: "cabang1klojen" },
+  { id: 2, name: "Lowokwaru", password: "cabang2lowokwaru" },
+  { id: 3, name: "Junrejo", password: "cabang3junrejo" },
+  { id: 4, name: "Blimbing", password: "cabang4blimbing" },
 ];
 
 const userList: User[] = [
-  { id: 1, username: 'Admin1', password: 'cabang1klojen', branchId: 1 },
-  { id: 2, username: 'Admin2', password: 'cabang2lowokwaru', branchId: 2 },
-  { id: 3, username: 'Admin3', password: 'cabang3junrejo', branchId: 3 },
-  { id: 4, username: 'Admin4', password: 'cabang4blimbing', branchId: 4 },
+  { id: 1, username: "Admin1", password: "cabang1klojen", branchId: 1 },
+  { id: 2, username: "Admin2", password: "cabang2lowokwaru", branchId: 2 },
+  { id: 3, username: "Admin3", password: "cabang3junrejo", branchId: 3 },
+  { id: 4, username: "Admin4", password: "cabang4blimbing", branchId: 4 },
 ];
 
 function ManajemenUser() {
   const [data, setData] = useState<User[]>(userList);
   const [page, setPage] = useState<number>(1);
-  const [searchKeyword, setSearchKeyword] = useState<string>('');
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [filteredUsers, setFilteredUsers] = useState<User[]>(userList);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -57,8 +57,8 @@ function ManajemenUser() {
   const [addingUser, setAddingUser] = useState<boolean>(false);
   const [newUser, setNewUser] = useState<User>({
     id: 0,
-    username: '',
-    password: '',
+    username: "",
+    password: "",
     branchId: 0,
   });
 
@@ -71,7 +71,10 @@ function ManajemenUser() {
     setFilteredUsers(filtered);
   }, [searchKeyword, data]);
   const startIndex = (page - 1) * resultsPerPage;
-  const paginatedData = filteredUsers.slice(startIndex, startIndex + resultsPerPage);
+  const paginatedData = filteredUsers.slice(
+    startIndex,
+    startIndex + resultsPerPage
+  );
 
   const handleAddUser = () => {
     if (newUser.username && newUser.password && newUser.branchId !== 0) {
@@ -80,26 +83,29 @@ function ManajemenUser() {
       const newUserData: User = {
         ...newUser,
         id: newUserId,
-        username: newUser.username, 
-        password: newUser.password, 
+        username: newUser.username,
+        password: newUser.password,
       };
       userList.push(newUserData);
-  
-      setFilteredUsers(userList); 
-      setData(userList.slice((page - 1) * resultsPerPage, page * resultsPerPage));
+
+      setFilteredUsers(userList);
+      setData(
+        userList.slice((page - 1) * resultsPerPage, page * resultsPerPage)
+      );
       setAddingUser(false);
-      setNewUser({ id: 0, username: '', password: '', branchId: 0 });
-      setSearchKeyword('');
+      setNewUser({ id: 0, username: "", password: "", branchId: 0 });
+      setSearchKeyword("");
     }
-  };  
-  
+  };
 
   const handleSaveEdit = () => {
     if (!editingUser) return;
     const updatedList = userList.map((user) =>
       user.id === editingUser.id ? editingUser : user
     );
-    setData(updatedList.slice((page - 1) * resultsPerPage, page * resultsPerPage));
+    setData(
+      updatedList.slice((page - 1) * resultsPerPage, page * resultsPerPage)
+    );
     setEditingUser(null);
   };
 
@@ -109,7 +115,7 @@ function ManajemenUser() {
     setData(filtered.slice((page - 1) * resultsPerPage, page * resultsPerPage));
     setDeletingUser(null);
   };
-  
+
   return (
     <Layout>
       <PageTitle>Manajemen User</PageTitle>
@@ -148,13 +154,17 @@ function ManajemenUser() {
             </TableHeader>
             <TableBody>
               {data.map((user) => {
-                const branch = branches.find((b) => b.password === user.password);
+                const branch = branches.find(
+                  (b) => b.password === user.password
+                );
                 return (
                   <TableRow key={user.id}>
                     <TableCell>{user.id}</TableCell>
                     <TableCell>{user.username}</TableCell>
                     <TableCell>{user.password}</TableCell>
-                    <TableCell>{branch ? branch.name : 'Tidak Ditemukan'}</TableCell>
+                    <TableCell>
+                      {branch ? branch.name : "Tidak Ditemukan"}
+                    </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
                         <Button

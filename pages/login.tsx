@@ -1,13 +1,14 @@
 import React, { useContext, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import axios from "lib/axios";
+import { login } from "lib/auth";
 import {
   Label,
   Input,
   Button,
   WindmillContext,
 } from "@roketid/windmill-react-ui";
+import { route } from "next/dist/server/router";
 
 function LoginPage() {
   const { mode } = useContext(WindmillContext);
@@ -32,18 +33,18 @@ function LoginPage() {
     setError("");
 
     try {
-      const response = await axios.post("/login", { email, password });
+      const response = await login(email, password);
 
-      const { token, user } = response.data;
+      console.log("login sukses", response);
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("userRole", user.role); // simpan role di localStorage
+      const role = response.user.role;
 
-      // Redirect sesuai role (opsional)
-      if (user.role === "super_admin") {
-        router.push("/example");
+      if (role == "admin") {
+        router.push("/admin/dashboard");
+      } else if (role == "super_admin") {
+        router.push("/superadmin/dashboard");
       } else {
-        router.push("/example");
+        setError("Role tidak dikenal. Hubungi administrator.");
       }
     } catch (err: any) {
       if (err.response) {
