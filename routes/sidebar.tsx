@@ -75,59 +75,6 @@ const routes: IRoute[] = [
     icon: "ButtonsIcon",
     name: "Rekaptulasi",
   },
-  /*{
-    path: '/example/forms',
-    icon: 'FormsIcon',
-    name: 'Forms',
-    roles: ['super_admin'], // Hanya untuk super admin
-  },
-  {
-    path: '/example/cards',
-    icon: 'CardsIcon',
-    name: 'Cards',
-    roles: ['super_admin'], // Hanya untuk super admin
-  },
-  {
-    path: '/example/buttons',
-    icon: 'ButtonsIcon',
-    name: 'Buttons',
-    roles: ['super_admin'], // Hanya untuk super admin
-  },
-
-  // Halaman Pages
-  {
-    icon: 'PagesIcon',
-    name: 'Pages',
-    roles: ['admin', 'super_admin'], // Bisa diakses oleh admin dan super admin
-    routes: [
-      {
-        path: '/example/login',
-        name: 'Login',
-        roles: ['admin', 'super_admin'], // Bisa diakses oleh admin dan super admin
-      },
-      {
-        path: '/example/create-account',
-        name: 'Create account',
-        roles: ['admin', 'super_admin'], // Bisa diakses oleh admin dan super admin
-      },
-      {
-        path: '/example/forgot-password',
-        name: 'Forgot password',
-        roles: ['admin', 'super_admin'], // Bisa diakses oleh admin dan super admin
-      },
-      {
-        path: '/example/404',
-        name: '404',
-        roles: ['admin', 'super_admin'], // Bisa diakses oleh admin dan super admin
-      },
-      {
-        path: '/example/blank',
-        name: 'Blank',
-        roles: ['admin', 'super_admin'], // Bisa diakses oleh admin dan super admin
-      },
-    ],
-<<<<<<< HEAD
-  },*/
 ];
 
 // Fungsi untuk memfilter rute berdasarkan role pengguna
