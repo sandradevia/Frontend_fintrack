@@ -1,58 +1,89 @@
-import React, { useState } from 'react';
-import { Button, Input } from '@roketid/windmill-react-ui';
+import React, { useEffect, useRef, useState } from "react";
+import { Button, Input } from "@roketid/windmill-react-ui";
+import { CreateTransaction } from "types/transaction";
+import { createTransaction } from "service/transactionService";
+import { Category } from "types/category";
+import { getCategories } from "service/categoryService";
 
-interface TransaksiData {
-  transactionId?: string;
-  category?: string;
-  amount?: number;
-  transactionDate?: string;
-  type?: string;
-  description?: string;
-  branchId?: string;
-  userId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+type Props = {
+  transaction: CreateTransaction;
+  onClose: () => void;
+  onSuccess: () => void;
+};
 
-interface AddTransaksiModalProps {
-  addingTransaction: boolean;
-  newTransaction: Partial<TransaksiData>; // Ubah jadi Partial
-  setNewTransaction: React.Dispatch<React.SetStateAction<Partial<TransaksiData>>>;
-  setAddingTransaction: React.Dispatch<React.SetStateAction<boolean>>;
-  handleAddTransaction: () => void;
-}
-
-const AddTransactionModal: React.FC<AddTransaksiModalProps> = ({
-  addingTransaction,
-  newTransaction,
-  setNewTransaction,
-  setAddingTransaction,
-  handleAddTransaction,
+const AddTransactionModal: React.FC<Props> = ({
+  transaction,
+  onClose,
+  onSuccess,
 }) => {
-  // If addingTransaction is false, don't render the modal
-  if (!addingTransaction) return null;
+  const [amount, setAmount] = useState(transaction.amount);
+  const [description, setDescription] = useState(transaction.description);
+  const [transactionDate, setTransactionDate] = useState(
+    transaction.transaction_date
+  );
+  const [categoryType, setCategoryType] = useState<string>("");
+  const [categoryId, setCategoryId] = useState<number>(0);
+  const [allCategory, setAllCategory] = useState<Category[]>([]);
+  const [isSubmit, setSubmit] = useState(false);
 
-  // Handle changes in the form fields
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
+  const isMountedRef = useRef(true);
 
-    // Cast 'name' to keyof TransaksiData to make TypeScript happy
-    if (name in newTransaction) {
-      const key = name as keyof TransaksiData;
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
-      // If the field is 'amount', ensure the value is a number
-      if (key === 'amount') {
-        setNewTransaction({
-          ...newTransaction,
-          [key]: value ? Number(value) : 0, // Convert to number or default to 0
-        });
-      } else {
-        setNewTransaction({
-          ...newTransaction,
-          [key]: value,
-        });
+  useEffect(() => {
+    getCategories().then((data: Category[]) => {
+      setAllCategory(data);
+    });
+  }, []);
+
+  const filteredCategories = allCategory.filter(
+    (cat) => cat.category_type === categoryType
+  );
+
+  const handleSubmit = async () => {
+    setSubmit(true);
+    if (!categoryId || !amount || !transactionDate) {
+      alert("Mohon isi semua field wajib (kategori, jumlah, dan tanggal).");
+      setSubmit(false);
+      return;
+    }
+
+    const now = new Date();
+    const formatterTime = new Intl.DateTimeFormat("id-ID", {
+      timeZone: "Asia/Jakarta",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+    const timeInJakarta = formatterTime.format(now);
+    const currentTime = timeInJakarta.replaceAll(".", ":");
+    const formatDate = transactionDate + " " + currentTime;
+
+    // console.log("Payload:", {
+    //   transaction_date: formatDate,
+    // });
+    try {
+      await createTransaction({
+        user_id: Number(localStorage.getItem("user_id")),
+        branch_id: Number(localStorage.getItem("branch_id")),
+        category_id: categoryId,
+        amount: amount,
+        transaction_date: formatDate,
+        description,
+      });
+      onSuccess();
+      onClose();
+    } catch (err) {
+      console.error("Gagal add transaksi:", err);
+    } finally {
+      if (isMountedRef.current) {
+        setSubmit(false);
       }
     }
   };
@@ -65,7 +96,7 @@ const AddTransactionModal: React.FC<AddTransaksiModalProps> = ({
           <h3 className="text-lg font-bold">Tambah Transaksi</h3>
           <Button
             className="bg-transparent text-white hover:bg-transparent hover:text-white"
-            onClick={() => setAddingTransaction(false)}
+            onClick={onClose}
           >
             <span className="text-xl">×</span>
           </Button>
@@ -73,33 +104,38 @@ const AddTransactionModal: React.FC<AddTransaksiModalProps> = ({
 
         {/* Form Fields */}
         <div className="p-4 space-y-4">
-        <div>
-          <label className="block font-medium mb-1">Tipe</label>
-          <select
-            className={`w-full mt-1 border-gray-300 rounded-md ${
-              newTransaction.type === "Pemasukan"
-                ? "bg-green-100"
-                : newTransaction.type === "Pengeluaran"
-                ? "bg-red-100"
-                : ""
-            }`}
-            value={newTransaction.type || ""}
-            onChange={handleInputChange}
-            name="type"
-          >
-            <option value="">-- Pilih Tipe --</option>
-            <option value="Pemasukan">Pemasukan</option>
-            <option value="Pengeluaran">Pengeluaran</option>
-          </select>
-        </div>
+          <div>
+            <label className="block font-medium mb-1">Tipe</label>
+            <select
+              className="w-full mt-1 border-gray-300 rounded-md"
+              name="type"
+              value={categoryType}
+              onChange={(e) => {
+                setCategoryType(e.target.value);
+                setCategoryId(0);
+              }}
+            >
+              <option value="">-- Pilih Tipe --</option>
+              <option value="pemasukan">Pemasukan</option>
+              <option value="pengeluaran">Pengeluaran</option>
+            </select>
+          </div>
 
           <div>
             <label className="block font-medium">Kategori</label>
-            <Input
-              name="category"
-              value={newTransaction.category || ""}
-              onChange={handleInputChange}
-            />
+            <select
+              className="w-full mt-1 border-gray-300 rounded-md"
+              value={categoryId}
+              onChange={(e) => setCategoryId(Number(e.target.value))}
+              disabled={!categoryType}
+            >
+              <option value="">-- Pilih Kategori --</option>
+              {filteredCategories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.category_name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -107,13 +143,8 @@ const AddTransactionModal: React.FC<AddTransaksiModalProps> = ({
             <Input
               type="number"
               name="amount"
-              value={newTransaction.amount || ""}
-              onChange={(e) =>
-                setNewTransaction({
-                  ...newTransaction,
-                  amount: Number(e.target.value),
-                })
-              }
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
             />
           </div>
 
@@ -122,8 +153,8 @@ const AddTransactionModal: React.FC<AddTransaksiModalProps> = ({
             <Input
               type="date"
               name="transactionDate"
-              value={newTransaction.transactionDate || ""}
-              onChange={handleInputChange}
+              value={transactionDate}
+              onChange={(e) => setTransactionDate(e.target.value)}
             />
           </div>
 
@@ -131,8 +162,8 @@ const AddTransactionModal: React.FC<AddTransaksiModalProps> = ({
             <label className="block font-medium">Deskripsi</label>
             <Input
               name="description"
-              value={newTransaction.description || ""}
-              onChange={handleInputChange}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
         </div>
@@ -141,14 +172,14 @@ const AddTransactionModal: React.FC<AddTransaksiModalProps> = ({
         <div className="flex justify-end space-x-2 p-4 border-t">
           <Button
             className="bg-red-700 text-white hover:bg-[#FF0404]"
-            onClick={() => setAddingTransaction(false)}
+            onClick={onClose}
           >
             Batal
           </Button>
           <Button
-            disabled={!newTransaction.category || !newTransaction.amount || !newTransaction.transactionDate}
+            disabled={isSubmit}
             className="bg-[#2B3674] text-white hover:bg-blue-700"
-            onClick={handleAddTransaction}
+            onClick={handleSubmit}
           >
             Tambah
           </Button>

@@ -15,206 +15,154 @@ import {
   EyeIcon,
   PlusIcon,
   PencilIcon as EditIcon,
-  TrashIcon,
   CalendarDaysIcon,
   ClipboardDocumentListIcon,
 } from "@heroicons/react/24/solid";
 
 import Layout from "example/containers/Layout";
-import InfoCard from "example/components/Cards/InfoCard";
-import { MoneyIcon, PeopleIcon } from "icons";
-import RoundIcon from "example/components/RoundIcon";
 import { LockClosedIcon } from "@heroicons/react/24/solid";
-
+import Loader from "example/components/Loader/Loader";
 import AddTransaksiModal from "./tambah";
 import EditTransaksiModal from "./edit";
 import DetailTransaksiModal from "./detail";
-
-interface TransaksiData {
-  transactionId: string;
-  category: string;
-  amount: number;
-  transactionDate: string;
-  type: string;
-  description: string;
-  branchId?: string;
-  userId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  isLocked?: boolean;
-}
+import { Transaction, CreateTransaction } from "../../../types/transaction";
+import {
+  getTransactionsByBranch,
+  getTransactionById,
+  lockTransaction,
+} from "../../../service/transactionService";
 
 function ManajemenTransaksi() {
-  const [data, setData] = useState<TransaksiData[]>([
-    {
-      transactionId: "1",
-      category: "Gaji",
-      amount: 5000,
-      transactionDate: "2023-05-01",
-      type: "Pemasukan",
-      description: "Gaji bulan ini",
-      isLocked: false,
-    },
-    {
-      transactionId: "2",
-      category: "Reservasi",
-      amount: 1500,
-      transactionDate: "2023-05-02",
-      type: "Pengeluaran",
-      description: "Reservasi Lapangan Futsal",
-      isLocked: false,
-    },
-    {
-      transactionId: "3",
-      category: "PDAM",
-      amount: 200,
-      transactionDate: "2023-05-03",
-      type: "Pengeluaran",
-      description: "Tagihan PDAM",
-      isLocked: false,
-    },
-  ]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
+  const [totalResults, setTotalResults] = useState<number>(0);
+  const [todayCount, setTodayCount] = useState<number>(0);
+  const [lockedCount, setLockedCount] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
-  const [searchKeyword, setSearchKeyword] = useState<string>("");
-  const [filteredTransactions, setFilteredTransactions] =
-    useState<TransaksiData[]>(data);
-  const [selectedTransaction, setSelectedTransaction] =
-    useState<TransaksiData | null>(null);
-  const [editingTransaction, setEditingTransaction] =
-    useState<TransaksiData | null>(null);
-  const [deletingTransaction, setDeletingTransaction] =
-    useState<TransaksiData | null>(null);
-  const [addingTransaction, setAddingTransaction] = useState<boolean>(false);
-  const [newTransaction, setNewTransaction] = useState<Partial<TransaksiData>>({
-    transactionId: "",
-    category: "",
-    amount: 0,
-    transactionDate: "",
-    type: "",
-    description: "",
-    branchId: "2",
-  });
-
   const [resultsPerPage, setResultsPerPage] = useState(10);
-  const totalResults = setFilteredTransactions.length;
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
+  const keyword = searchKeyword.toLowerCase();
 
-  useEffect(() => {
-    const filtered = data.filter((transaction) =>
-      transaction.category.toLowerCase().includes(searchKeyword.toLowerCase())
-    );
-    setFilteredTransactions(filtered);
-
-    const startIndex = (page - 1) * resultsPerPage;
-    const endIndex = startIndex + resultsPerPage;
-    setData(filtered.slice(startIndex, endIndex));
-  }, [searchKeyword, page]);
-
-  const cancelEdit = () => {
-    setEditingTransaction(null);
+  //detail
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openTransactionDetails = async (id: number) => {
+    try {
+      const transaction = await getTransactionById(id);
+      setSelectedTransaction(transaction);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Gagal mengambil detail transaksi", error);
+    }
   };
-
-  const saveEdit = () => {
-    if (!editingTransaction) return;
-    const updatedList = data.map((transaction) =>
-      transaction.transactionId === editingTransaction.transactionId
-        ? editingTransaction
-        : transaction
-    );
-    setData(
-      updatedList.slice((page - 1) * resultsPerPage, page * resultsPerPage)
-    );
-    setEditingTransaction(null);
-  };
-
-  const viewTransactionDetails = (transaction: TransaksiData) => {
-    setSelectedTransaction(transaction);
-  };
-
   const closeTransactionDetails = () => {
     setSelectedTransaction(null);
+    setIsModalOpen(false);
   };
 
-  const handleEditClick = (transaction: TransaksiData) => {
-    setEditingTransaction({ ...transaction });
+  // edit
+  const [editTransaction, setEditTransaction] = useState<Transaction | null>(
+    null
+  );
+  const handleEdit = (transaction: Transaction) => {
+    setEditTransaction(transaction);
+  };
+  const closeEditModel = () => {
+    setEditTransaction(null);
   };
 
-  const handleEditChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    if (editingTransaction) {
-      setEditingTransaction({
-        ...editingTransaction,
-        [name]: value,
+  //add
+  const [addTransaction, setAddTransaction] = useState(false);
+  const handleAdd = () => {
+    setAddTransaction(true);
+  };
+  const clodeAddModel = () => {
+    setAddTransaction(false);
+  };
+  const initialTransaction: CreateTransaction = {
+    user_id: 0,
+    branch_id: 0,
+    category_id: 0,
+    amount: 0,
+    transaction_date: "",
+    description: "",
+  };
+
+  //lock
+  const handleLock = async (transaction: Transaction) => {
+    if (!transaction.id) return;
+
+    try {
+      const updated = await lockTransaction(transaction.id, {
+        is_locked: true,
       });
-    }
-  };
-
-  const confirmDeleteTransaction = (transaction: TransaksiData) => {
-    setDeletingTransaction(transaction);
-  };
-
-  const cancelDelete = () => {
-    setDeletingTransaction(null);
-  };
-
-  const deleteTransaction = () => {
-    if (!deletingTransaction) return;
-    const filtered = data.filter(
-      (transaction) =>
-        transaction.transactionId !== deletingTransaction.transactionId
-    );
-    setData(filtered.slice((page - 1) * resultsPerPage, page * resultsPerPage));
-    setDeletingTransaction(null);
-  };
-
-  const handleAddTransaction = () => {
-    if (
-      newTransaction.category &&
-      newTransaction.amount !== undefined &&
-      newTransaction.transactionDate &&
-      newTransaction.type
-    ) {
-      const newTransactionId = (
-        parseInt(data[data.length - 1]?.transactionId || "0") + 1
-      ).toString();
-
-      const newTransactionData: TransaksiData = {
-        transactionId: newTransactionId,
-        branchId: newTransaction.branchId, // fallback
-        userId: "1",
-        type: newTransaction.type,
-        category: newTransaction.category,
-        amount: newTransaction.amount,
-        description: newTransaction.description || "",
-        transactionDate: newTransaction.transactionDate,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      const updatedData = [...data, newTransactionData];
-      setData(
-        updatedData.slice((page - 1) * resultsPerPage, page * resultsPerPage)
+      getTransactionsByBranch(Number(localStorage.getItem("branch_id"))).then(
+        (res) => {
+          setAllTransactions(res.data);
+          setTotalResults(res.meta.total);
+          setTodayCount(res.meta.today_count);
+          setLockedCount(res.meta.locked_count);
+        }
       );
-      setAddingTransaction(false);
-      setNewTransaction({
-        category: "",
-        amount: 0,
-        transactionDate: "",
-        description: "",
-        type: "",
-        branchId: "2", //ini harusnya ikut auth tapi ga ngerti codingane
-      });
+
+      setAllTransactions((prev) =>
+        prev.map((t) =>
+          t.id === updated.id
+            ? {
+                ...updated,
+                user: updated.user ?? t.user,
+                branch: updated.branch ?? t.branch,
+                category: updated.category ?? t.category,
+              }
+            : t
+        )
+      );
+    } catch (error) {
+      console.error("Gagal mengunci transaksi:", error);
     }
   };
 
-  const handleLockTransaksi = (transactionId: string) => {
-    const updated = data.map((item) =>
-      item.transactionId === transactionId ? { ...item, isLocked: true } : item
-    );
-    setData(updated);
-    setFilteredTransactions(updated);
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const branchId = Number(localStorage.getItem("branch_id"));
+      const response = await getTransactionsByBranch(branchId);
+      setAllTransactions(response.data);
+      setTotalResults(response.meta.total);
+      setTodayCount(response.meta.today_count);
+      setLockedCount(response.meta.locked_count);
+    } catch (err) {
+      console.error("Error fetching transactions:", err);
+      setError("Gagal mengambil data transaksi");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const filtered = allTransactions.filter((t) =>
+        t.category.name.toLowerCase().includes(keyword)
+      );
+
+      const start = (page - 1) * resultsPerPage;
+      const Pagination = filtered.slice(start, start + resultsPerPage);
+
+      setTransactions(Pagination);
+      setTotalResults(filtered.length);
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [allTransactions, searchKeyword, page, resultsPerPage]);
+
+  if (error) return <p className="tex;t-red-500">{error}</p>;
 
   return (
     <Layout>
@@ -226,7 +174,9 @@ function ManajemenTransaksi() {
             <CalendarDaysIcon className="w-8 h-8 text-blue-600 mr-4" />
             <div>
               <p className="text-sm text-gray-500">Transaksi Hari Ini</p>
-              <p className="text-xl font-semibold text-gray-800">3</p>
+              <p className="text-xl font-semibold text-gray-800">
+                {todayCount}
+              </p>
             </div>
           </div>
 
@@ -234,7 +184,9 @@ function ManajemenTransaksi() {
             <ClipboardDocumentListIcon className="w-8 h-8 text-indigo-600 mr-4" />
             <div>
               <p className="text-sm text-gray-500">Total Transaksi</p>
-              <p className="text-xl font-semibold text-gray-800">10</p>
+              <p className="text-xl font-semibold text-gray-800">
+                {totalResults}
+              </p>
             </div>
           </div>
 
@@ -242,7 +194,9 @@ function ManajemenTransaksi() {
             <LockClosedIcon className="w-8 h-8 text-red-600 mr-4" />
             <div>
               <p className="text-sm text-gray-500">Transaksi Terkunci</p>
-              <p className="text-xl font-semibold text-gray-800">2</p>
+              <p className="text-xl font-semibold text-gray-800">
+                {lockedCount}
+              </p>
             </div>
           </div>
         </div>
@@ -265,7 +219,7 @@ function ManajemenTransaksi() {
           <Button
             size="small"
             className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center space-x-2"
-            onClick={() => setAddingTransaction(true)}
+            onClick={() => handleAdd()}
           >
             <PlusIcon className="w-4 h-4" /> <span>Tambah Transaksi</span>
           </Button>
@@ -290,68 +244,81 @@ function ManajemenTransaksi() {
                   <TableCell>Kategori</TableCell>
                   <TableCell>Jumlah</TableCell>
                   <TableCell>Tanggal</TableCell>
-                  <TableCell>Aksi</TableCell>
                   <TableCell>Keterangan</TableCell>
+                  <TableCell>Aksi</TableCell>
                 </tr>
               </TableHeader>
               <TableBody>
-                {data.map((transaction, index) => (
-                  <TableRow
-                    key={transaction.transactionId}
-                    className={
-                      transaction.category.toLowerCase() === "reservasi"
-                        ? "bg-green-100"
-                        : "bg-red-100"
-                    }
-                  >
-                    <TableCell className="border-t border-r">
-                      {(page - 1) * resultsPerPage + index + 1}
-                    </TableCell>
-                    <TableCell className="border-t border-r">
-                      {transaction.category}
-                    </TableCell>
-                    <TableCell className="border-t border-r ">
-                      Rp{Number(transaction.amount).toLocaleString("id-ID")}
-                    </TableCell>
-                    <TableCell className="border-t border-r ">
-                      {new Date(transaction.transactionDate).toLocaleDateString(
-                        "id-ID"
-                      )}
-                    </TableCell>
-                    <TableCell className="border-t border-r">
-                      {transaction.description}
-                    </TableCell>
-                    <TableCell className="border-t">
-                      <div className="flex space-x-2">
-                        <Button
-                          size="small"
-                          className="bg-blue-700 text-white"
-                          onClick={() => viewTransactionDetails(transaction)}
-                        >
-                          <EyeIcon className="w-4 h-4 mr-1" /> Lihat
-                        </Button>
-                        <Button
-                          size="small"
-                          className="bg-yellow-400 text-black hover:bg-yellow-500"
-                          onClick={() => setEditingTransaction(transaction)}
-                          disabled={transaction.isLocked}
-                        >
-                          <EditIcon className="w-4 h-4 mr-1" /> Edit
-                        </Button>
-                        <Button
-                          size="small"
-                          className="bg-gray-700 text-white hover:bg-gray-800"
-                          onClick={() =>
-                            handleLockTransaksi(transaction.transactionId)
-                          }
-                          disabled={transaction.isLocked}
-                        >
-                          🔒 {transaction.isLocked ? "Terkunci" : "Kunci"}
-                        </Button>
-                      </div>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-6">
+                      Loading...
+                      <Loader />
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : transactions.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-6">
+                      Tidak ada data transaksi.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  transactions.map((t, index) => (
+                    <TableRow
+                      key={t.id}
+                      className={
+                        t.category.type.toLowerCase() === "pemasukan"
+                          ? "bg-green-100"
+                          : "bg-red-100"
+                      }
+                    >
+                      <TableCell className="border-t border-r">
+                        {(page - 1) * resultsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell className="border-t border-r">
+                        {t.category.name}
+                      </TableCell>
+                      <TableCell className="border-t border-r">
+                        Rp{Number(t.amount).toLocaleString("id-ID")}
+                      </TableCell>
+                      <TableCell className="border-t border-r">
+                        {new Date(t.transaction_date).toLocaleDateString(
+                          "id-ID"
+                        )}
+                      </TableCell>
+                      <TableCell className="border-t border-r">
+                        {t.description}
+                      </TableCell>
+                      <TableCell className="border-t">
+                        <div className="flex space-x-2">
+                          <Button
+                            size="small"
+                            className="bg-blue-700 text-white"
+                            onClick={() => openTransactionDetails(t.id)}
+                          >
+                            <EyeIcon className="w-4 h-4 mr-1" /> Lihat
+                          </Button>
+                          <Button
+                            size="small"
+                            className="bg-yellow-400 text-black hover:bg-yellow-500"
+                            disabled={t.is_locked}
+                            onClick={() => handleEdit(t)}
+                          >
+                            <EditIcon className="w-4 h-4 mr-1" /> Edit
+                          </Button>
+                          <Button
+                            size="small"
+                            className="bg-gray-700 text-white hover:bg-gray-800"
+                            disabled={t.is_locked}
+                            onClick={() => handleLock(t)}
+                          >
+                            🔒 {t.is_locked ? "Terkunci" : "Kunci"}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
             <TableFooter>
@@ -385,29 +352,42 @@ function ManajemenTransaksi() {
         </div>
 
         {/* Popups */}
-        {addingTransaction && (
-          <AddTransaksiModal
-            addingTransaction={addingTransaction}
-            newTransaction={newTransaction}
-            setNewTransaction={setNewTransaction}
-            setAddingTransaction={setAddingTransaction}
-            handleAddTransaction={handleAddTransaction}
-          />
-        )}
-
-        {selectedTransaction && (
+        {isModalOpen && selectedTransaction && (
           <DetailTransaksiModal
-            selectedTransaction={selectedTransaction}
-            closeTransactionDetails={closeTransactionDetails}
+            transaction={selectedTransaction}
+            onClose={closeTransactionDetails}
           />
         )}
-
-        {editingTransaction && (
+        {editTransaction && (
           <EditTransaksiModal
-            editingTransaction={editingTransaction}
-            handleEditChange={handleEditChange}
-            cancelEdit={cancelEdit}
-            saveEdit={saveEdit}
+            transaction={editTransaction}
+            onClose={closeEditModel}
+            onSuccess={() => {
+              getTransactionsByBranch(
+                Number(localStorage.getItem("branch_id"))
+              ).then((res) => {
+                setAllTransactions(res.data);
+                setTotalResults(res.meta.total);
+                setTodayCount(res.meta.today_count);
+                setLockedCount(res.meta.locked_count);
+              });
+            }}
+          />
+        )}
+        {addTransaction && (
+          <AddTransaksiModal
+            transaction={initialTransaction}
+            onClose={clodeAddModel}
+            onSuccess={() => {
+              getTransactionsByBranch(
+                Number(localStorage.getItem("branch_id"))
+              ).then((res) => {
+                setAllTransactions(res.data);
+                setTotalResults(res.meta.total);
+                setTodayCount(res.meta.today_count);
+                setLockedCount(res.meta.locked_count);
+              });
+            }}
           />
         )}
       </div>

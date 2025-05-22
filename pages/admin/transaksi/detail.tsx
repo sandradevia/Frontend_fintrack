@@ -1,24 +1,27 @@
-import React from 'react';
-import { Button } from '@roketid/windmill-react-ui';
+import React from "react";
+import { Button } from "@roketid/windmill-react-ui";
+import { Transaction } from "types/transaction";
 
-interface Transaction {
-  category: string;
-  amount: number | string;
-  transactionDate: string;
-  type: string;
-  description: string;
-}
+type Props = {
+  transaction: Transaction | null;
+  onClose: () => void;
+};
 
-interface Props {
-  selectedTransaction: Transaction | null;
-  closeTransactionDetails: () => void;
-}
+const TransactionDetailModal: React.FC<Props> = ({ transaction, onClose }) => {
+  if (!transaction) return null;
 
-const TransactionDetailModal: React.FC<Props> = ({
-  selectedTransaction,
-  closeTransactionDetails,
-}) => {
-  if (!selectedTransaction) return null;
+  function formatDateTime(dateString: string): string {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // bulan dimulai dari 0
+    const year = date.getFullYear();
+
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const seconds = date.getSeconds().toString().padStart(2, "0");
+
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+  }
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
@@ -28,7 +31,7 @@ const TransactionDetailModal: React.FC<Props> = ({
           <h3 className="text-xl font-semibold">Detail Transaksi</h3>
           <Button
             className="bg-transparent text-white hover:bg-transparent hover:text-white"
-            onClick={closeTransactionDetails}
+            onClick={onClose}
           >
             <span className="text-xl">×</span>
           </Button>
@@ -36,22 +39,17 @@ const TransactionDetailModal: React.FC<Props> = ({
 
         {/* Content */}
         <div className="space-y-3 mt-4 p-4">
-          <DetailItem label="Kategori" value={selectedTransaction.category} />
+          <DetailItem label="Kategori" value={transaction.category.name} />
           <DetailItem
             label="Jumlah"
-            value={
-              'Rp ' +
-              parseInt(selectedTransaction.amount as string).toLocaleString('id-ID')
-            }
+            value={"Rp " + Number(transaction.amount).toLocaleString("id-ID")}
           />
           <DetailItem
             label="Tanggal"
-            value={new Date(
-              selectedTransaction.transactionDate
-            ).toLocaleDateString('id-ID')}
+            value={formatDateTime(transaction.transaction_date)}
           />
-          <DetailItem label="Tipe" value={selectedTransaction.type} />
-          <DetailItem label="Deskripsi" value={selectedTransaction.description} />
+          <DetailItem label="Tipe" value={transaction.category.type} />
+          <DetailItem label="Deskripsi" value={transaction.description} />
         </div>
       </div>
     </div>
@@ -59,7 +57,10 @@ const TransactionDetailModal: React.FC<Props> = ({
 };
 
 // Komponen kecil untuk baris detail
-const DetailItem: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+const DetailItem: React.FC<{ label: string; value: string }> = ({
+  label,
+  value,
+}) => (
   <div className="flex">
     <div className="w-1/3 font-medium">{label}</div>
     <div className="w-1/12">:</div>
