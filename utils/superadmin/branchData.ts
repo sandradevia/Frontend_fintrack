@@ -9,13 +9,13 @@ export type Cabang = {
 };
 // GET all branches
 export const getBranches = async (): Promise<Cabang[]> => {
-  const {data} = await axios.get("/superadmin/branch");
+  const {data} = await axios.get("/branch");
   return data;
 };
 
 // GET single branch
 export const getBranchById = async (id: number): Promise<Cabang> => {
-  const {data} = await axios.get(`/superadmin/branch/${id}`);
+  const {data} = await axios.get(`/branch/${id}`);
   return data;
 };
 
@@ -25,7 +25,7 @@ export const createBranch = async (branch: {
   branch_name: string;
   branch_address: string;
 }): Promise<Cabang> => {
-  const { data } = await axios.post("/superadmin/branch", branch);
+  const { data } = await axios.post("/branch", branch);
   return data;
 };
 
@@ -38,7 +38,7 @@ export const updateBranch = async (
     branch_address: string;
   }
 ): Promise<Cabang> => {
-  const { data } = await axios.put(`/superadmin/branch/${id}`, branch, {
+  const { data } = await axios.put(`/branch/${id}`, branch, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -50,5 +50,5 @@ export const updateBranch = async (
 
 // DELETE branch
 export const deleteBranch = async (id: number): Promise<void> => {
-  await axios.delete(`/superadmin/branch/${id}`);
+  await axios.delete(`/branch/${id}`);
 };

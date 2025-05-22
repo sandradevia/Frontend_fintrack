@@ -20,17 +20,17 @@ export type Branch = {
 type NewUserInput = Omit<User, "id" | "branch">;
 
 export const getUsers = async () => {
-  const response = await axiosInstance.get("/superadmin/user");
+  const response = await axiosInstance.get("/user");
   return response;
 };
 
 export const getUserById = async (id: number) => {
-  const response = await axiosInstance.get(`/superadmin/user/${id}`);
+  const response = await axiosInstance.get(`/user/${id}`);
   return response;
 };
 
 export const createUser = async (userData: NewUserInput) => {
-  const response = await axiosInstance.post("/superadmin/user", userData);
+  const response = await axiosInstance.post("/user", userData);
   return response;
 };
 
@@ -47,17 +47,17 @@ export const updateUser = async (id: number, userData: User) => {
     payload.password = userData.password;
   }
 
-  const response = await axiosInstance.put(`/superadmin/user/${id}`, payload);
+  const response = await axiosInstance.put(`/user/${id}`, payload);
   return response;
 };
 
 
 export const deleteUser = async (id: number) => {
-  const response = await axiosInstance.delete(`/superadmin/user/${id}`);
+  const response = await axiosInstance.delete(`/user/${id}`);
   return response.data;
 };
 
 export const getBranches = async () => {
-  const response = await axiosInstance.get("/superadmin/branch"); // Adjust this endpoint based on your actual API
+  const response = await axiosInstance.get("/branch"); // Adjust this endpoint based on your actual API
   return response;
 };
