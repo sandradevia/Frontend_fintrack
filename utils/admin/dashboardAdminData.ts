@@ -1,20 +1,11 @@
 // dashboard/data/transaksiData.ts
+import axios from "../../lib/axios";
 
 export interface Transaksi {
   tipe: "Pemasukan" | "Pengeluaran";
-  jumlah: string;
+  jumlah: number;
   tanggal: string;
 }
-
-export const transaksiData: Transaksi[] = [
-  { tipe: "Pemasukan", jumlah: "100.000", tanggal: "12-12-2024" },
-  { tipe: "Pengeluaran", jumlah: "150.000", tanggal: "12-12-2024" },
-  { tipe: "Pemasukan", jumlah: "150.000", tanggal: "12-12-2024" },
-  { tipe: "Pemasukan", jumlah: "50.000", tanggal: "12-12-2024" },
-  { tipe: "Pemasukan", jumlah: "200.000", tanggal: "12-12-2024" },
-];
-
-// dashboardAdminData.ts
 
 export interface DashboardSummary {
   pemasukan: number;
@@ -23,19 +14,16 @@ export interface DashboardSummary {
 }
 
 export async function fetchDashboardSummary(): Promise<DashboardSummary> {
-  const res = await fetch('http://127.0.0.1:8000/api/dashboard-summary', {
-    cache: 'no-store', // supaya selalu fresh data, bisa diubah sesuai kebutuhan
-  });
+  const res = await axios.get(
+    "/dashboard-summary/" + Number(localStorage.getItem("branch_id"))
+  );
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch dashboard summary');
+  if (!res.data) {
+    throw new Error("Failed to fetch dashboard summary");
   }
 
-  const data: DashboardSummary = await res.json();
-  return data;
+  return res.data;
 }
-
-// utils/admin/dashboardAdminData.ts
 
 export interface TrendChartDataset {
   label: string;
@@ -50,33 +38,36 @@ export interface TrendChartData {
 
 export async function fetchTrendChartData(): Promise<TrendChartData | null> {
   try {
-    const res = await fetch("http://127.0.0.1:8000/api/dashboard-trendchart"); // sesuaikan endpoint API kamu
-    if (!res.ok) throw new Error('Failed to fetch trend chart data');
-    const data: TrendChartData = await res.json();
-    return data;
+    const res = await axios.get(
+      "/dashboard-trendchart/" + Number(localStorage.getItem("branch_id"))
+    );
+    if (!res.data) throw new Error("Failed to fetch trend chart data");
+    return res.data;
   } catch (error) {
-    console.error('Error fetching trend chart data:', error);
+    console.error("Error fetching trend chart data:", error);
     return null;
   }
 }
+
 export interface TrendYearData {
   year: string;
   total: number;
 }
+
 export const fetchTrendChartYearly = async (): Promise<TrendYearData[]> => {
   try {
-    const res = await fetch(
-      "http://127.0.0.1:8000/api/dashboard-trendchart-yearly"
+    const res = await axios.get(
+      "/dashboard-trendchart-yearly/" +
+        Number(localStorage.getItem("branch_id"))
     );
-    if (!res.ok) throw new Error("Failed to fetch trend chart yearly data");
-    const data: TrendYearData[] = await res.json();
-    return data;
+    if (!res.data) throw new Error("Failed to fetch trend chart yearly data");
+
+    return res.data;
   } catch (error) {
     console.error("Error fetching yearly trend chart data:", error);
     throw new Error("Failed to fetch yearly trend chart data");
   }
-}
-// utils/admin/dashboardAdminData.ts
+};
 
 export interface TransaksiItem {
   tipe: string;
@@ -86,12 +77,13 @@ export interface TransaksiItem {
 
 export async function fetchRecentTransactions(): Promise<TransaksiItem[]> {
   try {
-    const res = await fetch("http://127.0.0.1:8000/api/dashboard-transactions");
-    if (!res.ok) {
+    const res = await axios.get(
+      "/dashboard-transactions/" + Number(localStorage.getItem("branch_id"))
+    );
+    if (!res.data) {
       throw new Error("Failed to fetch recent transactions");
     }
-    const data = await res.json();
-    return data;
+    return res.data;
   } catch (error) {
     console.error("Error fetching recent transactions:", error);
     return [];
