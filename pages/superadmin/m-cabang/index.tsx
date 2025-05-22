@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -9,76 +9,123 @@ import {
   TableContainer,
   Button,
   Pagination,
-  Input
-} from '@roketid/windmill-react-ui';
+  Input,
+} from "@roketid/windmill-react-ui";
 
-import { EyeIcon, PlusIcon, PencilIcon as EditIcon, TrashIcon } from '@heroicons/react/24/solid';
+import {
+  EyeIcon,
+  PlusIcon,
+  PencilIcon as EditIcon,
+  TrashIcon,
+} from "@heroicons/react/24/solid";
 
-import Layout from 'example/containers/Layout';
-import PageTitle from 'example/components/Typography/PageTitle';
-import EditBranchModal from './edit';
-import DetailBranchModal from './detail';
-import DeleteBranchModal from './delete';
-import TambahBranchModal from './tambah'; // rename agar tidak clash/confuse
+import Layout from "example/containers/Layout";
+import PageTitle from "example/components/Typography/PageTitle";
 
-type Cabang = {
-  id: number;
-  name: string;
-  address: string;
-};
+import TambahBranchModal from "./tambah";
+import EditBranchModal from "./edit";
+import DetailBranchModal from "./detail";
+import DeleteBranchModal from "./delete";
 
-const branchList: Cabang[] = [
-  { id: 1, name: 'Klojen', address: 'Jl. Raya Klojen No.1' },
-  { id: 2, name: 'Lowokwaru', address: 'Jl. Raya Lowokwaru No.2' },
-  { id: 3, name: 'Junrejo', address: 'Jl. Raya Junrejo No.3' },
-  { id: 4, name: 'Blimbing', address: 'Jl. Raya Blimbing No.4' },
-];
+import {
+  Cabang,
+  getBranches,
+  createBranch,
+  updateBranch,
+  deleteBranch,
+} from "utils/superadmin/branchData";
 
 const ManajemenCabang = () => {
-  const [branches, setBranches] = useState<Cabang[]>(branchList);
+  const [branches, setBranches] = useState<Cabang[]>([]);
   const [page, setPage] = useState(1);
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedBranch, setSelectedBranch] = useState<Cabang | null>(null);
   const [editingBranch, setEditingBranch] = useState<Cabang | null>(null);
   const [deletingBranch, setDeletingBranch] = useState<Cabang | null>(null);
   const [addingBranch, setAddingBranch] = useState(false);
-  const [newBranch, setNewBranch] = useState({ name: '', address: '' });
+  const [newBranch, setNewBranch] = useState({
+    branch_code: "",
+    branch_name: "",
+    branch_address: "",
+  });
 
   const resultsPerPage = 10;
 
-  const handleAddBranch = () => {
-    if (newBranch.name && newBranch.address) {
-      const newBranchId = branches.length + 1;
-      const newBranchData = { id: newBranchId, ...newBranch };
-      setBranches([...branches, newBranchData]);
-      setAddingBranch(false);
-      setNewBranch({ name: '', address: '' });
+  const fetchBranches = async () => {
+    try {
+      const data = await getBranches();
+      setBranches(data);
+    } catch (error) {
+      console.error("Failed to fetch branches:", error);
     }
   };
 
-  const handleEditClick = (branch: Cabang) => {
-    setEditingBranch({ ...branch });
+  useEffect(() => {
+    fetchBranches();
+  }, []);
+
+  const handleAddBranch = async () => {
+    try {
+      if (
+        newBranch.branch_code.trim() === "" ||
+        newBranch.branch_name.trim() === "" ||
+        newBranch.branch_address.trim() === ""
+      ) {
+        alert("Semua field wajib diisi!");
+        return;
+      }
+
+      await createBranch(newBranch);
+      await fetchBranches();
+      setAddingBranch(false);
+      setNewBranch({ branch_code: "", branch_name: "", branch_address: "" });
+    } catch (error) {
+      console.error("Failed to add branch:", error);
+    }
   };
 
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (!editingBranch) return;
-    const updatedList = branches.map((branch) =>
-      branch.id === editingBranch.id ? editingBranch : branch
-    );
-    setBranches(updatedList);
-    setEditingBranch(null);
+    try {
+      if (
+        editingBranch.branch_code.trim() === "" ||
+        editingBranch.branch_name.trim() === "" ||
+        editingBranch.branch_address.trim() === ""
+      ) {
+        alert("Semua field wajib diisi!");
+        return;
+      }
+
+      await updateBranch(editingBranch.id, editingBranch);
+      console.log("Branch dari SaveEdit updated:", editingBranch);
+      await fetchBranches();
+      setEditingBranch(null);
+    } catch (error) {
+      console.error("Failed to update branch:", error);
+    }
   };
 
-  const handleDeleteBranch = () => {
+  const handleDeleteBranch = async () => {
     if (!deletingBranch) return;
-    const updatedList = branches.filter((branch) => branch.id !== deletingBranch.id);
-    setBranches(updatedList);
-    setDeletingBranch(null);
+    try {
+      await deleteBranch(deletingBranch.id);
+      await fetchBranches();
+      setDeletingBranch(null);
+    } catch (error) {
+      console.error("Failed to delete branch:", error);
+    }
   };
 
-  const handleViewBranch = (branch: Cabang) => {
-    setSelectedBranch(branch);
-  };
+  const filteredBranches = branches.filter((branch) =>
+    branch.branch_name.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
+
+  // Pagination slice
+  const startIndex = (page - 1) * resultsPerPage;
+  const paginatedBranches = filteredBranches.slice(
+    startIndex,
+    startIndex + resultsPerPage
+  );
 
   return (
     <Layout>
@@ -110,53 +157,51 @@ const ManajemenCabang = () => {
             <TableHeader>
               <tr className="bg-indigo-100">
                 <TableCell>ID</TableCell>
+                <TableCell>KODE CABANG</TableCell>
                 <TableCell>NAMA CABANG</TableCell>
                 <TableCell>ALAMAT</TableCell>
                 <TableCell>AKSI</TableCell>
               </tr>
             </TableHeader>
             <TableBody>
-              {branches
-                .filter((branch) =>
-                  branch.name.toLowerCase().includes(searchKeyword.toLowerCase())
-                )
-                .map((branch) => (
-                  <TableRow key={branch.id}>
-                    <TableCell>{branch.id}</TableCell>
-                    <TableCell>{branch.name}</TableCell>
-                    <TableCell>{branch.address}</TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          size="small"
-                          className="bg-blue-700 text-white"
-                          onClick={() => handleViewBranch(branch)}
-                        >
-                          <EyeIcon className="w-4 h-4 mr-1" /> Lihat
-                        </Button>
-                        <Button
-                          size="small"
-                          className="bg-yellow-400 text-black hover:bg-yellow-500"
-                          onClick={() => handleEditClick(branch)}
-                        >
-                          <EditIcon className="w-4 h-4 mr-1" /> Edit
-                        </Button>
-                        <Button
-                          size="small"
-                          className="bg-red-600 text-white hover:bg-red-700"
-                          onClick={() => setDeletingBranch(branch)}
-                        >
-                          <TrashIcon className="w-4 h-4 mr-1" /> Hapus
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {paginatedBranches.map((branch) => (
+                <TableRow key={branch.id}>
+                  <TableCell>{branch.id}</TableCell>
+                  <TableCell>{branch.branch_code}</TableCell>
+                  <TableCell>{branch.branch_name}</TableCell>
+                  <TableCell>{branch.branch_address}</TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        size="small"
+                        className="bg-blue-700 text-white"
+                        onClick={() => setSelectedBranch(branch)}
+                      >
+                        <EyeIcon className="w-4 h-4 mr-1" /> Lihat
+                      </Button>
+                      <Button
+                        size="small"
+                        className="bg-yellow-400 text-black hover:bg-yellow-500"
+                        onClick={() => setEditingBranch(branch)}
+                      >
+                        <EditIcon className="w-4 h-4 mr-1" /> Edit
+                      </Button>
+                      <Button
+                        size="small"
+                        className="bg-red-600 text-white hover:bg-red-700"
+                        onClick={() => setDeletingBranch(branch)}
+                      >
+                        <TrashIcon className="w-4 h-4 mr-1" /> Hapus
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
           <TableFooter>
             <Pagination
-              totalResults={branches.length}
+              totalResults={filteredBranches.length}
               resultsPerPage={resultsPerPage}
               onChange={setPage}
               label="Table navigation"
@@ -165,7 +210,7 @@ const ManajemenCabang = () => {
         </TableContainer>
       </div>
 
-      {/* Tambah */}
+      {/* Modal Tambah */}
       <TambahBranchModal
         isOpen={addingBranch}
         onClose={() => setAddingBranch(false)}
@@ -174,32 +219,33 @@ const ManajemenCabang = () => {
         setNewBranch={setNewBranch}
       />
 
-      {/* Edit */}
+      {/* Modal Edit */}
       {editingBranch && (
         <EditBranchModal
+          isOpen={!!editingBranch}
           branch={editingBranch}
-          onChange={setEditingBranch}
-          onSave={saveEdit}
           onClose={() => setEditingBranch(null)}
+          onSave={saveEdit}
+          setBranch={setEditingBranch}
         />
       )}
 
-      {/* Detail */}
+      {/* Modal Detail */}
       {selectedBranch && (
         <DetailBranchModal
-          isOpen={!!selectedBranch}
+          isOpen={true}
           branch={selectedBranch}
           onClose={() => setSelectedBranch(null)}
         />
       )}
 
-      {/* Hapus */}
+      {/* Modal Delete */}
       {deletingBranch && (
         <DeleteBranchModal
-          isOpen={!!deletingBranch}
+          isOpen={true}
+          branch={deletingBranch}
           onClose={() => setDeletingBranch(null)}
           onDelete={handleDeleteBranch}
-          deletingBranch={deletingBranch}
         />
       )}
     </Layout>
