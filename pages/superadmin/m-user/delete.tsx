@@ -3,7 +3,7 @@ import { Button } from '@roketid/windmill-react-ui';
 
 type User = {
   id: number;
-  username: string;
+  name: string;
   password: string;
   branchId?: number;
 };
@@ -39,7 +39,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({ user, onDelete, onClo
           </Button>
         </div>
         <div className="p-4">
-          <p>Apakah Anda yakin ingin menghapus pengguna <strong>{user.username}</strong>?</p>
+          <p>Apakah Anda yakin ingin menghapus pengguna <strong>{user.name}</strong>?</p>
         </div>
         <div className="flex justify-end space-x-2 p-4 border-t">
           <Button

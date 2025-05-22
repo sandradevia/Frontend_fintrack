@@ -1,16 +1,25 @@
-// pages/example/superadmin/m-cabang/tambah.tsx
-import React from 'react';
-import { Button, Input } from '@roketid/windmill-react-ui';
+import React from "react";
+import { Button, Input } from "@roketid/windmill-react-ui";
 
-type TambahModalProps = {
+type TambahBranchModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: () => void;
-  newBranch: { name: string; address: string; image?: File | null };
-  setNewBranch: React.Dispatch<React.SetStateAction<{ name: string; address: string; image?: File | null }>>;
+  newBranch: {
+    branch_code: string;
+    branch_name: string;
+    branch_address: string;
+  };
+  setNewBranch: React.Dispatch<
+    React.SetStateAction<{
+      branch_code: string;
+      branch_name: string;
+      branch_address: string;
+    }>
+  >;
 };
 
-const AddBranch: React.FC<TambahModalProps> = ({
+const TambahBranchModal: React.FC<TambahBranchModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
@@ -18,11 +27,6 @@ const AddBranch: React.FC<TambahModalProps> = ({
   setNewBranch,
 }) => {
   if (!isOpen) return null;
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setNewBranch({ ...newBranch, image: file });
-  };
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
@@ -38,42 +42,48 @@ const AddBranch: React.FC<TambahModalProps> = ({
         </div>
         <div className="p-4 space-y-4">
           <div>
+            <label className="block font-medium">Kode Cabang</label>
+            <Input
+              value={newBranch.branch_code}
+              onChange={(e) =>
+                setNewBranch({ ...newBranch, branch_code: e.target.value })
+              }
+              placeholder="Kode Cabang"
+            />
+          </div>
+          <div>
             <label className="block font-medium">Nama Cabang</label>
             <Input
-              value={newBranch.name}
-              onChange={(e) => setNewBranch({ ...newBranch, name: e.target.value })}
+              value={newBranch.branch_name}
+              onChange={(e) =>
+                setNewBranch({ ...newBranch, branch_name: e.target.value })
+              }
+              placeholder="Nama Cabang"
             />
           </div>
-
           <div>
-            <label className="block font-medium">Alamat</label>
+            <label className="block font-medium">Alamat Cabang</label>
             <Input
-              value={newBranch.address}
-              onChange={(e) => setNewBranch({ ...newBranch, address: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium">Gambar Cabang</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="mt-1 block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
+              value={newBranch.branch_address}
+              onChange={(e) =>
+                setNewBranch({ ...newBranch, branch_address: e.target.value })
+              }
+              placeholder="Alamat Cabang"
             />
           </div>
         </div>
 
         <div className="flex justify-end space-x-2 p-4 border-t">
-          <Button className="bg-red-700 text-black hover:bg-[#FF0404]" onClick={onClose}>
+          <Button
+            className="bg-red-700 text-black hover:bg-[#FF0404]"
+            onClick={onClose}
+          >
             Batal
           </Button>
-          <Button className="bg-[#2B3674] text-white hover:bg-blue-700" onClick={onSubmit}>
+          <Button
+            className="bg-[#2B3674] text-white hover:bg-blue-700"
+            onClick={onSubmit}
+          >
             Tambah
           </Button>
         </div>
@@ -82,4 +92,4 @@ const AddBranch: React.FC<TambahModalProps> = ({
   );
 };
 
-export default AddBranch;
+export default TambahBranchModal;

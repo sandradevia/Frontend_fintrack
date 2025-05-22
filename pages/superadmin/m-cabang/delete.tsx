@@ -1,28 +1,35 @@
-import React from 'react';
-import { Modal, ModalBody, ModalFooter, Button } from '@roketid/windmill-react-ui';
+import React from "react";
+import {
+  Modal,
+  ModalBody,
+  ModalFooter,
+  Button,
+} from "@roketid/windmill-react-ui";
 
 type DeleteModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onDelete: () => void;
-  deletingBranch: { id: number; name: string } | null;
+  branch: { id: number; branch_name: string } | null;
 };
 
 const DeleteBranchModal: React.FC<DeleteModalProps> = ({
   isOpen,
   onClose,
   onDelete,
-  deletingBranch,
+  branch,
 }) => {
-  if (!deletingBranch) return null;
+  if (!branch) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalBody>
-        Apakah kamu yakin ingin menghapus cabang <strong>{deletingBranch.name}</strong>?
+        Apakah kamu yakin ingin menghapus cabang <strong>{branch.branch_name}</strong>?
       </ModalBody>
       <ModalFooter>
-        <Button layout="outline" onClick={onClose}>Batal</Button>
+        <Button layout="outline" onClick={onClose}>
+          Batal
+        </Button>
         <Button
           className="bg-red-600 hover:bg-red-700 text-white"
           onClick={onDelete}
