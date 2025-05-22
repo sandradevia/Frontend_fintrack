@@ -1,16 +1,17 @@
-import React from 'react';
-import { Button, Input } from '@roketid/windmill-react-ui';
+import React from "react";
+import { Button, Input } from "@roketid/windmill-react-ui";
 
 type Branch = {
   id: number;
-  name: string;
+  branch_name: string;
 };
 
 type User = {
-  id: number;
-  username: string;
+  name: string;
+  email: string;
   password: string;
-  branchId?: number;
+  branch_id: number;
+  role: string;
 };
 
 type AddUserModalProps = {
@@ -28,7 +29,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   onAdd,
   onClose,
 }) => {
-  const isDisabled = !user.username || !user.password || !user.branchId || user.branchId === 0;
+  const isDisabled =
+    !user.name || !user.email || !user.password || !user.branch_id;
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
@@ -50,28 +52,37 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
             <label className="block font-medium">Cabang</label>
             <select
               className="w-full mt-1 border border-gray-300 rounded-md p-2"
-              value={user.branchId ?? 0}
+              value={user.branch_id}
               onChange={(e) =>
-                onChange({ ...user, branchId: Number(e.target.value) })
+                onChange({ ...user, branch_id: Number(e.target.value) })
               }
             >
               <option value={0}>-- Pilih Cabang --</option>
               {branches.map((branch) => (
                 <option key={branch.id} value={branch.id}>
-                  {branch.name}
+                  {branch.branch_name}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block font-medium">Username</label>
+            <label className="block font-medium">Nama</label>
             <Input
-              name="username"
-              value={user.username}
-              onChange={(e) =>
-                onChange({ ...user, username: e.target.value })
-              }
+              name="name"
+              value={user.name}
+              onChange={(e) => onChange({ ...user, name: e.target.value })}
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <label className="block font-medium">Email</label>
+            <Input
+              name="email"
+              type="email"
+              value={user.email}
+              onChange={(e) => onChange({ ...user, email: e.target.value })}
               className="mt-1"
             />
           </div>
@@ -82,9 +93,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
               name="password"
               type="password"
               value={user.password}
-              onChange={(e) =>
-                onChange({ ...user, password: e.target.value })
-              }
+              onChange={(e) => onChange({ ...user, password: e.target.value })}
               className="mt-1"
             />
           </div>

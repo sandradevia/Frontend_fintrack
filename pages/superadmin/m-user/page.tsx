@@ -19,7 +19,7 @@ import {
 } from "@heroicons/react/24/solid";
 import Layout from "example/containers/Layout";
 import PageTitle from "example/components/Typography/PageTitle";
-import { getUsers, deleteUser, getBranches, createUser, updateUser } from "utils/superadmin/userData";
+
 import AddUserModal from "./tambah";
 import EditUserModal from "./edit";
 import DetailUserModal from "./detail";
@@ -27,126 +27,94 @@ import DeleteUserModal from "./delete";
 
 type User = {
   id: number;
-  name: string;
-  email: string;
+  username: string;
   password: string;
-  role: string;
-  branch_id: number;
-  branch?: {
-    id: number;
-    branch_name: string;
-  };
+  branchId?: number;
 };
 
+const branches = [
+  { id: 1, name: "Klojen", password: "cabang1klojen" },
+  { id: 2, name: "Lowokwaru", password: "cabang2lowokwaru" },
+  { id: 3, name: "Junrejo", password: "cabang3junrejo" },
+  { id: 4, name: "Blimbing", password: "cabang4blimbing" },
+];
+
+const userList: User[] = [
+  { id: 1, username: "Admin1", password: "cabang1klojen", branchId: 1 },
+  { id: 2, username: "Admin2", password: "cabang2lowokwaru", branchId: 2 },
+  { id: 3, username: "Admin3", password: "cabang3junrejo", branchId: 3 },
+  { id: 4, username: "Admin4", password: "cabang4blimbing", branchId: 4 },
+];
+
 function ManajemenUser() {
-  const [data, setData] = useState<User[]>([]);
-  const [branches, setBranches] = useState<any[]>([]);
+  const [data, setData] = useState<User[]>(userList);
   const [page, setPage] = useState<number>(1);
   const [searchKeyword, setSearchKeyword] = useState<string>("");
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>(userList);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const [addingUser, setAddingUser] = useState<boolean>(false);
-  
-  const [newUser, setNewUser] = useState({
-    name: "",
-    email: "",
+  const [newUser, setNewUser] = useState<User>({
+    id: 0,
+    username: "",
     password: "",
-    branch_id: 0,
-    role: "admin",
+    branchId: 0,
   });
-  const [isLoading, setIsLoading] = useState(false);
 
   const resultsPerPage = 10;
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      const usersResponse = await getUsers();
-      const branchesResponse = await getBranches();
-      // const [usersResponse, branchesResponse] = await Promise.all([
-      //   getUsers(),
-      //   getBranches(),
-      // ]);
-      console.log("Users:", usersResponse.data);
-      console.log("Branches:", branchesResponse.data);
-      setData(usersResponse.data);
-      setFilteredUsers(usersResponse.data);
-      setBranches(branchesResponse.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const filtered = data.filter((user) =>
-    user.name.toLowerCase().includes(searchKeyword.toLowerCase())
-  );
-  // useEffect(() => {
-  //   const filtered = data.filter((user) =>
-  //     user.name.toLowerCase().includes(searchKeyword.toLowerCase())
-  //   );
-  //   setFilteredUsers(filtered);
-  // }, [searchKeyword, data]);
-
+    const filtered = data.filter((user) =>
+      user.username.toLowerCase().includes(searchKeyword.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+  }, [searchKeyword, data]);
   const startIndex = (page - 1) * resultsPerPage;
-  const paginatedData = filtered.slice(
+  const paginatedData = filteredUsers.slice(
     startIndex,
     startIndex + resultsPerPage
   );
 
-  const handleAddUser = async () => {
-    try {
-      await createUser(newUser);
-      await fetchData(); // Refresh the data
+  const handleAddUser = () => {
+    if (newUser.username && newUser.password && newUser.branchId !== 0) {
+      const newUserId = userList.length + 1;
+      const branch = branches.find((b) => b.id === newUser.branchId);
+      const newUserData: User = {
+        ...newUser,
+        id: newUserId,
+        username: newUser.username,
+        password: newUser.password,
+      };
+      userList.push(newUserData);
+
+      setFilteredUsers(userList);
+      setData(
+        userList.slice((page - 1) * resultsPerPage, page * resultsPerPage)
+      );
       setAddingUser(false);
-      setNewUser({
-        name: "",
-        email: "",
-        password: "",
-        branch_id: 0,
-        role: "admin",
-      });
+      setNewUser({ id: 0, username: "", password: "", branchId: 0 });
       setSearchKeyword("");
-    } catch (error) {
-      console.error("Error adding user:", error);
     }
   };
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = () => {
     if (!editingUser) return;
-    setIsLoading(true);
-    try {
-      await updateUser(editingUser.id!, editingUser);
-      await fetchData(); // Refresh the data
-      setEditingUser(null);
-    } catch (error) {
-      console.error("Error updating user:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    const updatedList = userList.map((user) =>
+      user.id === editingUser.id ? editingUser : user
+    );
+    setData(
+      updatedList.slice((page - 1) * resultsPerPage, page * resultsPerPage)
+    );
+    setEditingUser(null);
   };
 
-  const handleDeleteUser = async () => {
+  const handleDeleteUser = () => {
     if (!deletingUser) return;
-    try {
-      await deleteUser(deletingUser.id);
-      await fetchData(); // Refresh the data
-      setDeletingUser(null);
-    } catch (error) {
-      console.error("Error deleting user:", error);
-    }
+    const filtered = userList.filter((user) => user.id !== deletingUser.id);
+    setData(filtered.slice((page - 1) * resultsPerPage, page * resultsPerPage));
+    setDeletingUser(null);
   };
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <Layout>
@@ -178,24 +146,24 @@ function ManajemenUser() {
             <TableHeader>
               <tr className="bg-indigo-100">
                 <TableCell>ID</TableCell>
-                <TableCell>NAME</TableCell>
-                <TableCell>EMAIL</TableCell>
+                <TableCell>USERNAME</TableCell>
+                <TableCell>PASSWORD</TableCell>
                 <TableCell>CABANG</TableCell>
                 <TableCell>AKSI</TableCell>
               </tr>
             </TableHeader>
             <TableBody>
-              {paginatedData.map((user) => {
+              {data.map((user) => {
                 const branch = branches.find(
                   (b) => b.password === user.password
                 );
                 return (
                   <TableRow key={user.id}>
                     <TableCell>{user.id}</TableCell>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.password}</TableCell>
                     <TableCell>
-                      {branch ? branch.branch_name : "Tidak Ditemukan"}
+                      {branch ? branch.name : "Tidak Ditemukan"}
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
@@ -254,7 +222,7 @@ function ManajemenUser() {
         <EditUserModal
           user={editingUser}
           branches={branches}
-          onChange={(user) => setEditingUser(user as User)}
+          onChange={setEditingUser}
           onSave={handleSaveEdit}
           onClose={() => setEditingUser(null)}
         />
