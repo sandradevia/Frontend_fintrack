@@ -1,14 +1,14 @@
-import React from 'react';
-import { Button } from '@roketid/windmill-react-ui';
+import React from "react";
+import { Button } from "@roketid/windmill-react-ui";
 
 type DetailBranchModalProps = {
   isOpen: boolean;
   onClose: () => void;
   branch: {
     id: number;
-    name: string;
-    address: string;
-    imageUrl?: string; // pastikan API menyediakan URL gambar
+    branch_code: string;
+    branch_name: string;
+    branch_address: string;
   } | null;
 };
 
@@ -34,27 +34,24 @@ const DetailBranchModal: React.FC<DetailBranchModalProps> = ({
 
         <div className="p-4 space-y-4">
           <div>
+            <label className="block font-medium">Kode Cabang</label>
+            <p className="mt-1 text-gray-700">{branch.branch_code}</p>
+          </div>
+          <div>
             <label className="block font-medium">Nama Cabang</label>
-            <p className="mt-1 text-gray-700">{branch.name}</p>
+            <p className="mt-1 text-gray-700">{branch.branch_name}</p>
           </div>
           <div>
             <label className="block font-medium">Alamat</label>
-            <p className="mt-1 text-gray-700">{branch.address}</p>
+            <p className="mt-1 text-gray-700">{branch.branch_address}</p>
           </div>
-          {branch.imageUrl && (
-            <div>
-              <label className="block font-medium">Gambar</label>
-              <img
-                src={branch.imageUrl}
-                alt={`Logo ${branch.name}`}
-                className="mt-2 rounded-md w-full h-auto max-h-48 object-contain border"
-              />
-            </div>
-          )}
         </div>
 
         <div className="flex justify-end space-x-2 p-4 border-t">
-          <Button className="bg-[#2B3674] text-white hover:bg-blue-700" onClick={onClose}>
+          <Button
+            className="bg-[#2B3674] text-white hover:bg-blue-700"
+            onClick={onClose}
+          >
             Tutup
           </Button>
         </div>
