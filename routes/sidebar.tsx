@@ -47,6 +47,12 @@ const routes: IRoute[] = [
     name: "Manajemen Cabang",
     roles: ["super_admin"],
   },
+  {
+    path: "/superadmin/kategori",
+    icon: "ModalsIcon", // Bisa ganti sesuai kebutuhan
+    name: "Manajemen Kategori",
+    roles: ["super_admin"],
+  },
 
   // Rute yang hanya bisa diakses oleh admin
   {
