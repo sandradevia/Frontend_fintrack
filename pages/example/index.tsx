@@ -1,157 +1,191 @@
-// src/pages/Dashboard.tsx
 import React, { useState, useEffect } from 'react'
-import { Line, Bar } from 'react-chartjs-2'
+import { Doughnut, Line } from 'react-chartjs-2'
 
 import CTA from 'example/components/CTA'
 import InfoCard from 'example/components/Cards/InfoCard'
+import ChartCard from 'example/components/Chart/ChartCard'
+import ChartLegend from 'example/components/Chart/ChartLegend'
 import PageTitle from 'example/components/Typography/PageTitle'
 import RoundIcon from 'example/components/RoundIcon'
 import Layout from 'example/containers/Layout'
 import response, { ITableData } from 'utils/demo/tableData'
-import { ChatIcon, CartIcon, MoneyIcon } from 'icons'
+import { ChatIcon, CartIcon, MoneyIcon, PeopleIcon } from 'icons'
 
 import {
-  Chart as ChartJS,
+  TableBody,
+  TableContainer,
+  Table,
+  TableHeader,
+  TableCell,
+  TableRow,
+  TableFooter,
+  Avatar,
+  Badge,
+  Pagination,
+} from '@roketid/windmill-react-ui'
+
+import {
+  doughnutOptions,
+  lineOptions,
+  doughnutLegends,
+  lineLegends,
+} from 'utils/demo/chartsData'
+
+import {
+  Chart,
   ArcElement,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  BarElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js'
 
-ChartJS.register(
-  ArcElement,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-)
-
-const chartOptions = {
-  responsive: true,
-  plugins: {
-    legend: { position: 'top' as const },
-    tooltip: {
-      callbacks: {
-        label: function (context: any) {
-          return `Rp. ${context.raw.toLocaleString('id-ID')}`
-        },
-      },
-    },
-  },
-  scales: {
-    y: {
-      ticks: {
-        callback: function (value: number) {
-          return `Rp. ${value.toLocaleString('id-ID')}`
-        },
-      },
-    },
-  },
-}
-
-const lineData = {
-  labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-  datasets: [
-    {
-      label: 'Pemasukan',
-      data: [10000000, 12000000, 15000000, 17000000],
-      borderColor: '#10b981',
-      backgroundColor: 'rgba(16, 185, 129, 0.2)',
-      fill: true,
-      tension: 0.4,
-    },
-  ],
-}
-
-const barData = {
-  labels: ['Cabang 1', 'Cabang 2', 'Cabang 3'],
-  datasets: [
-    {
-      label: 'Pengeluaran',
-      data: [4000000, 5000000, 3000000],
-      backgroundColor: '#ef4444',
-    },
-    {
-      label: 'Pemasukan',
-      data: [10000000, 11000000, 9000000],
-      backgroundColor: '#3b82f6',
-    },
-  ],
-}
-
 function Dashboard() {
+  Chart.register(
+    ArcElement,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+  )
+
   const [page, setPage] = useState(1)
   const [data, setData] = useState<ITableData[]>([])
 
+  // pagination setup
   const resultsPerPage = 10
   const totalResults = response.length
 
+  // pagination change control
   function onPageChange(p: number) {
     setPage(p)
   }
 
+  // on page change, load new sliced data
+  // here you would make another server request for new data
   useEffect(() => {
     setData(response.slice((page - 1) * resultsPerPage, page * resultsPerPage))
   }, [page])
 
   return (
     <Layout>
-      <PageTitle>Main Dashboard</PageTitle>
+      <PageTitle>Dashboard</PageTitle>
 
+      <CTA />
+
+      {/* <!-- Cards --> */}
       <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
-        <InfoCard title="Pemasukan" value="Rp. 12.000.000,00">
+        <InfoCard title="Total clients" value="6389">
           {/* @ts-ignore */}
-          <RoundIcon icon={MoneyIcon} iconColorClass="text-green-500 dark:text-green-100" bgColorClass="bg-green-100 dark:bg-green-500" className="mr-4" />
+          <RoundIcon
+            icon={PeopleIcon}
+            iconColorClass="text-orange-500 dark:text-orange-100"
+            bgColorClass="bg-orange-100 dark:bg-orange-500"
+            className="mr-4"
+          />
         </InfoCard>
-        <InfoCard title="Pengeluaran" value="Rp. 5.000.000,00">
+
+        <InfoCard title="Account balance" value="$ 46,760.89">
           {/* @ts-ignore */}
-          <RoundIcon icon={CartIcon} iconColorClass="text-red-500 dark:text-red-100" bgColorClass="bg-red-100 dark:bg-red-500" className="mr-4" />
+          <RoundIcon
+            icon={MoneyIcon}
+            iconColorClass="text-green-500 dark:text-green-100"
+            bgColorClass="bg-green-100 dark:bg-green-500"
+            className="mr-4"
+          />
         </InfoCard>
-        <InfoCard title="Saldo" value="Rp. 7.000.000,00">
+
+        <InfoCard title="New sales" value="376">
           {/* @ts-ignore */}
-          <RoundIcon icon={MoneyIcon} iconColorClass="text-blue-500 dark:text-blue-100" bgColorClass="bg-blue-100 dark:bg-blue-500" className="mr-4" />
+          <RoundIcon
+            icon={CartIcon}
+            iconColorClass="text-blue-500 dark:text-blue-100"
+            bgColorClass="bg-blue-100 dark:bg-blue-500"
+            className="mr-4"
+          />
         </InfoCard>
-        <InfoCard title="Jumlah Cabang" value="4">
+
+        <InfoCard title="Pending contacts" value="35">
           {/* @ts-ignore */}
-          <RoundIcon icon={ChatIcon} iconColorClass="text-purple-500 dark:text-purple-100" bgColorClass="bg-purple-100 dark:bg-purple-500" className="mr-4" />
+          <RoundIcon
+            icon={ChatIcon}
+            iconColorClass="text-teal-500 dark:text-teal-100"
+            bgColorClass="bg-teal-100 dark:bg-teal-500"
+            className="mr-4"
+          />
         </InfoCard>
       </div>
 
+      <TableContainer>
+        <Table>
+          <TableHeader>
+            <tr>
+              <TableCell>Client</TableCell>
+              <TableCell>Amount</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Date</TableCell>
+            </tr>
+          </TableHeader>
+          <TableBody>
+            {data.map((user, i) => (
+              <TableRow key={i}>
+                <TableCell>
+                  <div className="flex items-center text-sm">
+                    <Avatar
+                      className="hidden mr-3 md:block"
+                      src={user.avatar}
+                      alt="User image"
+                    />
+                    <div>
+                      <p className="font-semibold">{user.name}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {user.job}
+                      </p>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm">$ {user.amount}</span>
+                </TableCell>
+                <TableCell>
+                  <Badge type={user.status}>{user.status}</Badge>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm">
+                    {new Date(user.date).toLocaleDateString()}
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <TableFooter>
+          <Pagination
+            totalResults={totalResults}
+            resultsPerPage={resultsPerPage}
+            label="Table navigation"
+            onChange={onPageChange}
+          />
+        </TableFooter>
+      </TableContainer>
 
+      <PageTitle>Charts</PageTitle>
       <div className="grid gap-6 mb-8 md:grid-cols-2">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h4 className="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">Tren Keuangan Tahunan</h4>
-          <p className="text-2xl font-bold text-blue-600 mb-2">Rp. 468.000.000,00</p>
-          <Line data={lineData} options={chartOptions} />
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h4 className="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">Tren Keuangan</h4>
-          <Bar data={barData} options={chartOptions} />
-        </div>
-      </div>
+        <ChartCard title="Revenue">
+          <Doughnut {...doughnutOptions} />
+          <ChartLegend legends={doughnutLegends} />
+        </ChartCard>
 
-      <PageTitle>Dokumentasi Cabang</PageTitle>
-      <div className="grid gap-4 mb-8 md:grid-cols-2 xl:grid-cols-4">
-        {[1, 2, 3, 4].map((index) => (
-          <div key={index} className="rounded-lg bg-white dark:bg-gray-800 shadow p-4">
-            <div className="mb-2 text-lg font-semibold">Cabang {index}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              {index === 1 && 'Klojen'}
-              {index === 2 && 'Lowokwaru'}
-              {index === 3 && 'Junrejo'}
-              {index === 4 && 'Blimbing'}
-            </div>
-          </div>
-        ))}
+        <ChartCard title="Traffic">
+          <Line {...lineOptions} />
+          <ChartLegend legends={lineLegends} />
+        </ChartCard>
       </div>
     </Layout>
   )
