@@ -19,6 +19,7 @@
   "exclude": [
     "node_modules",
     "pages/example/dashboardAdmin.tsx",
-    "pages/example/index.tsx"
+    "pages/example/index.tsx",
+    "pages/index.tsx"
   ]
 }
